@@ -6,7 +6,7 @@ rule all:
     input:
         "data/processed/stacking-data.h5"
 
-rule create_json:
+rule create_h5:
     input:
         "data/external/stacking-data.csv"
     output:
