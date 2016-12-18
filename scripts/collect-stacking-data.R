@@ -1,3 +1,4 @@
+# Collect stacking data in a csv file
 
 setwd(snakemake@input[[1]]);
 source(snakemake@config[["assembling-script"]]);
