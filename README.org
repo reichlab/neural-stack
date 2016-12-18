@@ -1,0 +1,3 @@
+#+TITLE: Neural Stack
+
+Neural network based stacking of prediction models

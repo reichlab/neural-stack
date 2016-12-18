@@ -1,0 +1,2 @@
+contest-repo: git@github.com:reichlab/2016-2017-flu-contest-ensembles
+assembling-script: inst/estimation/stacking/assemble-stacking-inputs.R
