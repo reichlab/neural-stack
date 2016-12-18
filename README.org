@@ -1,3 +1,8 @@
 #+TITLE: Neural Stack
 
 Neural network based stacking of prediction models
+
+#+BEGIN_SRC sh
+pip install -r requirements.txt
+snakemake
+#+END_SRC
