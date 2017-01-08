@@ -2,13 +2,33 @@
 Models used in notebooks
 """
 
+import abc
+
 from keras.models import Sequential
 from keras.layers import Activation, Dense, Embedding, Flatten, Merge
-from keras.layers import Convolution1D, RepeatVector
+from keras.layers import Convolution1D
 from keras.regularizers import l2
 
 
-class SimpleDense:
+class ModelMeta(abc.ABC):
+    """
+    Abstract class enforcing model design
+    """
+
+    @abc.abstractmethod
+    def fit():
+        """
+        Use this to train the model
+        """
+
+    @abc.abstractmethod
+    def predict():
+        """
+        Use this to take out predictions
+        """
+
+
+class SimpleDense(ModelMeta):
     """
     Basic dense model taking embedding of input
     """
@@ -34,7 +54,7 @@ class SimpleDense:
         return self.model.predict(*args)
 
 
-class Conv1DDistribution:
+class Conv1DDistribution(ModelMeta):
     """
     One dimensional conv model over input distribution to give an output
     distribution
