@@ -27,6 +27,15 @@ rule create_h5:
     script:
         "scripts/create-hierarchical-data.py"
 
+rule assemble_ensemble_data_new:
+    input:
+        config["ensemble-repo-local"]
+    output:
+        "data/external/ensemble-data.csv"
+
+    script:
+        "scripts/collect-bin-data.R"
+
 rule assemble_ensemble_data:
     input:
         config["contest-repo-local"]

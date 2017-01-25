@@ -1,7 +1,6 @@
 # Collect stacking data in a csv file
 
 setwd(file.path(getwd(), "scripts"));
-source(".Rprofile");
 
 setwd("../");
 setwd(snakemake@input[[1]]);
