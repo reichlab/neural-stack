@@ -1,5 +1,3 @@
-contest-repo: git@github.com:reichlab/2016-2017-flu-contest-ensembles
-contest-repo-local: data/external/contest-repo
+ensemble-repo: git@github.com:reichlab/adaptively-weighted-ensemble
 ensemble-repo-local: data/external/adaptively-weighted-ensemble
-stacking-assembler: inst/estimation/stacking/assemble-stacking-inputs.R
 ensemble-assembler: R/stacking-utils.R

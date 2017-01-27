@@ -4,50 +4,41 @@ configfile: "config.yaml"
 
 rule all:
     input:
-        "data/processed/stacking-data.h5",
-        "data/processed/stacking-data-with-actual.h5"
+        "data/processed/ensemble-data.h5",
+        "data/processed/ensemble-data-with-actual.h5"
 
 rule add_actual_data:
     input:
-        "data/processed/stacking-data.h5",
-        config["contest-repo-local"] + "/data-raw/allflu-cleaned.csv"
+        "data/processed/ensemble-data.h5",
+        config["ensemble-repo-local"] + "/data-raw/allflu-cleaned.csv"
 
     output:
-        "data/processed/stacking-data-with-actual.h5"
+        "data/processed/ensemble-data-with-actual.h5"
 
     script:
-        "scripts/append-actual-data.py"
+        "scripts/add-actual-data.py"
 
 rule create_h5:
     input:
-        "data/external/stacking-data.csv"
+        "data/external/ensemble-data.csv"
     output:
-        "data/processed/stacking-data.h5"
+        "data/processed/ensemble-data.h5"
 
     script:
         "scripts/create-hierarchical-data.py"
 
-rule assemble_ensemble_data_new:
+rule assemble_ensemble_data:
     input:
         config["ensemble-repo-local"]
     output:
         "data/external/ensemble-data.csv"
 
     script:
-        "scripts/collect-bin-data.R"
+        "scripts/collect-ensemble-data.R"
 
-rule assemble_ensemble_data:
-    input:
-        config["contest-repo-local"]
+rule get_ensemble_repo:
     output:
-        "data/external/stacking-data.csv"
-
-    script:
-        "scripts/collect-stacking-data.R"
-
-rule get_contest_repo:
-    output:
-        config["contest-repo-local"]
+        config["ensemble-repo-local"]
 
     shell:
-        "git clone --depth 1 " + config["contest-repo"] + " {output}"
+        "git clone --depth 1 " + config["ensemble-repo"] + " {output}"
