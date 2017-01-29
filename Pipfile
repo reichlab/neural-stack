@@ -3,11 +3,12 @@ verify_ssl = true
 url = "https://pypi.python.org/simple"
 
 [packages]
-seaborn = "*"
-jupyter = "*"
-scikit_learn = "*"
-Keras = "*"
 snakemake = "*"
-numpy = "*"
-matplotlib = "*"
 pandas = "*"
+jupyter = "*"
+seaborn = "*"
+matplotlib = "*"
+scikit_learn = "*"
+numpy = "*"
+Keras = "*"
+tables = "*"
