@@ -4,23 +4,12 @@ configfile: "config.yaml"
 
 rule all:
     input:
-        "data/processed/ensemble-data.h5",
-        "data/processed/ensemble-data-with-actual.h5"
-
-rule add_actual_data:
-    input:
-        "data/processed/ensemble-data.h5",
-        config["ensemble-repo-local"] + "/data-raw/allflu-cleaned.csv"
-
-    output:
-        "data/processed/ensemble-data-with-actual.h5"
-
-    script:
-        "scripts/add-actual-data.py"
+        "data/processed/ensemble-data.h5"
 
 rule create_h5:
     input:
-        "data/external/ensemble-data.csv"
+        "data/external/ensemble-data.csv",
+        config["ensemble-repo-local"] + "/data-raw/allflu-cleaned.csv"
     output:
         "data/processed/ensemble-data.h5"
 
