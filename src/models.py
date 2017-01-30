@@ -4,9 +4,9 @@ Models used in notebooks
 
 import abc
 
+from keras.layers import (Activation, Convolution1D, Dense, Embedding, Flatten,
+                          Merge)
 from keras.models import Sequential
-from keras.layers import Activation, Dense, Embedding, Flatten, Merge
-from keras.layers import Convolution1D
 from keras.regularizers import l2
 
 
@@ -137,7 +137,7 @@ class Conv1DDistribution(ModelMeta):
 
         preds.add(Convolution1D(16, 3, border_mode="same"))
         preds.add(Flatten())
-        preds.add(Dense(50))
+        preds.add(Dense(50, W_regularizer=l2(0.01)))
         preds.add(Activation("tanh"))
 
         weeks = Sequential()
@@ -149,7 +149,7 @@ class Conv1DDistribution(ModelMeta):
 
         merged = Sequential()
         merged.add(Merge([preds, weeks], mode="concat", concat_axis=1))
-        merged.add(Dense(50))
+        merged.add(Dense(50, W_regularizer=l2(0.01)))
         merged.add(Activation("relu"))
         merged.add(Dense(n_bins))
         merged.add(Activation("softmax"))
