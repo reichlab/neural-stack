@@ -133,11 +133,11 @@ class Conv1DDistribution(ModelMeta):
 
         preds.add(
             Convolution1D(
-                32, 5, border_mode="same", input_shape=(n_bins, n_models)))
+                64, 5, border_mode="same", input_shape=(n_bins, n_models)))
 
-        preds.add(Convolution1D(16, 3, border_mode="same"))
+        preds.add(Convolution1D(20, 5, border_mode="same"))
         preds.add(Flatten())
-        preds.add(Dense(50, W_regularizer=l2(0.01)))
+        preds.add(Dense(30, W_regularizer=l2(0.01)))
         preds.add(Activation("tanh"))
 
         weeks = Sequential()
