@@ -2,7 +2,6 @@
 Create h5 file for python models
 """
 
-import numpy as np
 import pandas as pd
 
 # Read actual data
@@ -20,6 +19,7 @@ actual["time"] = actual["season"].str.cat(actual["season_week"].astype("str").st
 
 actual = actual.loc[:, ["region", "weighted_ili", "time"]]
 actual.columns = ["region", "actual", "time"]
+actual = actual[["region", "time", "actual"]]
 
 
 # Read predictions
@@ -28,13 +28,31 @@ df = df.dropna()
 
 df["analysis_time_season"] = df["analysis_time_season"].str.split("/").str[0]
 df["time"] = df["analysis_time_season"].str.cat(df["analysis_time_season_week"].astype("str")).astype("int")
-
 df.drop(["analysis_time_season", "analysis_time_season_week"], axis=1, inplace=True)
 
-identifiers = ["model", "region", "time"]
-df = pd.melt(df, id_vars = identifiers)
+# Separate column groups for clarity
+identifiers = df[["model", "region", "time"]]
+
+groups = [
+    "scores",
+    "onset",
+    "peak_week",
+    "peak",
+    "one_week",
+    "two_weeks",
+    "three_weeks",
+    "four_weeks"
+]
 
 # Write to file
 with pd.HDFStore(snakemake.output[0]) as store:
-    store["predictions"] = df
+    store["predictions/identifiers"] = identifiers
     store["actual"] = actual
+
+    group_lengths = [14, 34, 33, 131, 131, 131, 131, 131]
+    start = end = 2
+    for g, l in zip(groups, group_lengths):
+        key = "predictions/" + g
+        end = start + l
+        store[key] = df.iloc[:, start:end]
+        start = end
