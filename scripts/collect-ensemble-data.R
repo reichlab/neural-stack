@@ -12,7 +12,7 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 
-df <- assemble_loso_predictions()
+df <- assemble_predictions()
 
 setwd("../../..")
 write.csv(df, file=snakemake@output[[1]])
