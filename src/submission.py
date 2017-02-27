@@ -40,16 +40,15 @@ MAP_REGION = {
 }
 
 
-def read_csv(file_name, season: str, model: str):
+def read_csv(file_name, time: int, season: str, model: str):
     """
     Return a submission object from give file
     """
 
-    return Submission(
-        pd.read_csv(file_name), int(file_name.split(".")[0]), season, model)
+    return Submission(pd.read_csv(file_name), time, season, model)
 
 
-def segment_from_X(X: np.ndarray, region: str, target: str, time: int) -> Dict:
+def segment_from_X(X: np.ndarray, point_prediction, region: str, target: str, time: int) -> Dict:
     """
     Create a segment of rows going into submission
     """
@@ -71,7 +70,7 @@ def segment_from_X(X: np.ndarray, region: str, target: str, time: int) -> Dict:
         # Not outputting point predictions since that is autocalculated by
         # flusight
         # TODO Fix if needed
-        _append_row([region, target, "Point", "week", None, None, None])
+        _append_row([region, target, "Point", "week", None, None, point_prediction])
 
         bin_starts = list(range(40, 53)) + list(range(1, 21))
         bin_ends = [i + 1 for i in bin_starts]
@@ -79,7 +78,7 @@ def segment_from_X(X: np.ndarray, region: str, target: str, time: int) -> Dict:
         for idx, x in enumerate(X):
             _append_row([
                 region, target, "Bin", "week",
-                bin_starts[idx], bin_ends[idx], x
+                str(bin_starts[idx]), str(bin_ends[idx]), x
             ])
 
         # Add none bin with 0 probability
@@ -93,17 +92,17 @@ def segment_from_X(X: np.ndarray, region: str, target: str, time: int) -> Dict:
 
         # Point prediction
         # TODO Fix if needed
-        _append_row([region, target, "Point", "percent", None, None, None])
+        _append_row([region, target, "Point", "percent", None, None, point_prediction])
 
         bin_starts = np.linspace(0, 13, 131)
-        bin_ends = [i + 1 for i in bin_starts]
+        bin_ends = [i + 0.1 for i in bin_starts]
         # Set last bin_end to 100 to conform with submission format
         bin_ends[-1] = 100
 
         for idx, x in enumerate(X):
             _append_row([
                 region, target, "Bin", "percent",
-                bin_starts[idx], bin_ends[idx], x
+                f"{bin_starts[idx]:.1f}", f"{bin_ends[idx]:.1f}", x
             ])
 
     segment = {"time": time, "df": pd.DataFrame(df)[SUB_HEADER]}
