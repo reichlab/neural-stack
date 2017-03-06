@@ -1,3 +1,4 @@
 ensemble-repo: git@github.com:reichlab/adaptively-weighted-ensemble
 ensemble-repo-local: data/external/adaptively-weighted-ensemble
 ensemble-assembler: R/stacking-utils.R
+flusight-data-dir: ../flusight-test/data

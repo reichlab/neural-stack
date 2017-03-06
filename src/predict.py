@@ -2,19 +2,36 @@
 Module for prediction using trained models from the notebook
 """
 
-from typing import List
+from typing import Dict, List
 
 import numpy as np
 from keras.models import load_model
 
-from .submission import (MAP_REGION, MAP_TARGET, Submission, read_csv,
-                         segment_from_X, sub_from_segments)
+from submission import (MAP_REGION, MAP_TARGET, Submission, read_csv,
+                        segment_from_X, sub_from_segments)
+
+
+def smooth(x, params):
+    """
+    Smooth bins using given parameters
+    """
+
+    if params["ws"] < 3:
+        return x
+
+    if params["window"] == "flat":
+        w = np.ones(params["ws"])
+    else:
+        w = eval("np." + params["window"] + "(params[\"ws\"])")
+
+    y = np.convolve(w / w.sum(), x, mode="same")
+    return y
 
 
 def generate_submission(models: List,
                         submissions: List[Submission],
                         out_csv: str,
-                        smoothing=None):
+                        smoothing_params: List[Dict]):
     """
     Use trained models on CSVs to generating a submission file in out_csv
     Expected order of lists:
@@ -22,7 +39,7 @@ def generate_submission(models: List,
     - submissions : kcde, kde, sarima submissions
     """
 
-    assert len(models) == 4
+    assert len(models) == len(smoothing_params) == 4
     assert len(submissions) == 3
     assert len(set([sub.time % 100 for sub in submissions])) == 1
 
@@ -48,8 +65,9 @@ def generate_submission(models: List,
     segments = []
     for tid, target in enumerate(targets):
         for rid, region in enumerate(regions):
-            segments.append(
-                segment_from_X(predictions[tid][rid], 2, region, target, time))
+            bins = smooth(predictions[tid][rid], smoothing_params[tid])
+            point = np.argmax(bins) * 0.1
+            segments.append(segment_from_X(bins, point, region, target, time))
 
     # Add dummy values for other targets
     dummy_week = np.zeros(33)
