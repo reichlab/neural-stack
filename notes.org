@@ -7,12 +7,12 @@ Following are possible inputs to the ensemble models.
 
 1. /Point predictions/ from component models
 
-   This could be extended to be values from past /n/ weeks.
+   This could be extended to values from past /n/ weeks.
 
 2. /Full probability distributions/ from component models
 
-   Due to the large number of bins, these might need to be encoded to a shorter
-   form using either:
+   Since the output can have large number of bins (nodes), the distributions can
+   be encoded in a shorter form using either:
 
    - Simple summary statistics
 
@@ -22,14 +22,14 @@ Following are possible inputs to the ensemble models.
    - Similar model as above but trained as a part of the main model, in a
      supervised setting.
 
-   This can also be extended to be distributions from past /n/ weeks.
+   This can also be extended to distributions from past /n/ weeks.
 
 3. /Week/ of the input
 
    This provides an indication of which regime we are working in as far as
    seasonal patterns as concerned. Since using direct numbers will make it out
    of scale and makes the series discontinuous at ends (last week = 53, next
-   week = ~\theta~), weeks can be encoded using a clock model. Weeks go as degrees
+   week = 1), weeks can be encoded using a clock model. Weeks go as degrees
    in a circle (~\theta~) and the input to the model can be ~[sin(\theta), cos(\theta)]~.
 
    Alternatively, week information can itself be modeled using actual values
@@ -55,7 +55,7 @@ value of N.
 * Models / Components
 
 ** Simple feed forward
-Take in the described four input and predict distribution. Can be further
+Takes in the described four input and predicts distribution. Can be further
 augmented by input distribution / week encoding branch.
 
 ** Probability autoencoder
