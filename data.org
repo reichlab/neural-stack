@@ -1,0 +1,37 @@
+#+TITLE: Data
+#+AUTHOR: Abhinav Tushar
+
+/This document contains notes about the data specification and standard used by
+the code./
+
+The data (actual and predictions) are organized in both temporal and spatial
+dimension. Spatially, there are data for [[https://www.hhs.gov/about/agencies/iea/regional-offices/index.html][10 HHS regions]]. Temporaly, data points
+are assigned a time identifier. A time identifier looks like ~200323~. The first
+four digits identify the epidemic season's first year and the next two identify
+the /season/'s week (this is different from MMWR/regular week numbers as a /season/
+starts at certain offset around the end of July). Thus ~200323~ means epidemic
+week /23/ for season /2003-2004/.
+
+There are two type of data files in this repository.
+
+1. *Actual data*
+
+   This is a collection of rows specifying actual /wILI/ values for a given region
+   and time identifier (see above).
+
+   #+BEGIN_QUOTE
+   Whether this represents the observed values at the time remains to be
+   ascertained since data is, as of now, pulled from another repository. Once a
+   common decision is made regarding whether to use latest updated data (as
+   compared to snapshots available at corresponding time points), a better
+   source for this data would be the delphi-API.
+   #+END_QUOTE
+
+2. *Prediction file for each model*
+
+   Each model provides individual files with matrix data (~numpy.savetxt~ format),
+   the rows of which are mapped to a region and time using a separate ~identifier~
+   file. The matrix files contain week ahead predictions and special target
+   predictions like /peak week/.
+
+   /TODO/
