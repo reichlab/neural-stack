@@ -1,4 +1,5 @@
-#+TITLE: Neural stack notes
+#+TITLE: Model notes
+#+AUTHOR: Abhinav Tushar
 
 * Ensemble specifications
 
