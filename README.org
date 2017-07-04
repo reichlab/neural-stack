@@ -1,9 +1,15 @@
 #+TITLE: Neural Stack
 
-Neural network based stacking of prediction models
+Neural network based ensemble of flu prediction models. Some development related
+notes are in /models.org/. Information about data are in /data.org/. This uses
+snakemake to automate ins and outs from this repository.
+
+Model source code lies in ~./src~. Experiments are kept in ~./notebooks~.
 
 #+BEGIN_SRC sh
 pip install pipenv
 pipenv install
-pipenv run snakemake
+
+# Read the Snakefile for targets
+pipenv run snakemake <target>
 #+END_SRC
