@@ -203,3 +203,25 @@ def week_embedding(embedding_size):
     model.add(Dense(1))
 
     return model
+
+
+def residual_model(prediction_horizon):
+    """
+    Fit on the residual of prediction from another model
+
+    Parameters
+    ----------
+    prediction_horizon : int
+        Number of time steps we are predicting in the future
+    """
+
+    model = Sequential()
+
+    model.add(Dense(10, input_dim=prediction_horizon))
+    model.add(Activation("relu"))
+    model.add(Dense(20, input_dim=prediction_horizon))
+    model.add(Activation("relu"))
+    model.add(Dense(10, input_dim=prediction_horizon))
+    model.add(Dense(prediction_horizon))
+
+    return model
