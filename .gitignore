@@ -72,7 +72,4 @@ ENV/
 .spyderproject
 # Rope project settings
 .ropeproject
-external
 .snakemake
-data/external
-packrat/lib*/
