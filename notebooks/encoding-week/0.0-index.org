@@ -11,8 +11,7 @@ be improved by encoding epiweeks using methods that:
    02 as to week 52 (or 53) of last year.
 
 There are a few tricks to represent weeks like this. One simple method is to put
-weeks on a 360^o circle and use $sin$, $cos$ of the angle as
-representation [fn:sx].
+weeks on a 360^o circle and use /sin/, /cos/ of the angle as representation [fn:sx].
 
 Another, slightly different, approach is to fit a model on the epiweeks to
 predict the /wili/ values and use an intermediate representation of epiweek as its
@@ -22,4 +21,4 @@ a more useful input representation.
 The notebooks in this directory explore these ideas and create/evaluate models
 for the same.
 
-[fn:x] https://stats.stackexchange.com/a/263809
+[fn:sx] https://stats.stackexchange.com/a/263809
