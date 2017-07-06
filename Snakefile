@@ -4,7 +4,7 @@
 # issue or are from the corresponding past week
 rule actual_data:
     output:
-        "data/external/actual.csv"
+        "data/processed/actual.csv"
     script:
         "scripts/get-actual-data.py"
 
