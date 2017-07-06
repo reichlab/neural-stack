@@ -5,12 +5,11 @@
 the code./
 
 The data (actual and predictions) are organized in both temporal and spatial
-dimension. Spatially, there are data for [[https://www.hhs.gov/about/agencies/iea/regional-offices/index.html][10 HHS regions]]. Temporaly, data points
-are assigned a time identifier. A time identifier looks like ~200323~. The first
-four digits identify the epidemic season's first year and the next two identify
-the /season/'s week (this is different from MMWR/regular week numbers as a /season/
-starts at certain offset around the end of July). Thus ~200323~ means epidemic
-week /23/ for season /2003-2004/.
+dimension. Spatially, there are data for [[https://www.hhs.gov/about/agencies/iea/regional-offices/index.html][10 HHS regions]] (identified by ~nat~,
+~hhs1~, ~hhs2~ etc.). Temporally, data points are assigned a time identifier which
+looks like ~200323~. The first four digits identify the year and the next two
+identify the epiweek (this is the MMWR week). Thus ~200323~ means epiweek /23/ for
+year /2003/.
 
 There are two type of data files in this repository.
 
@@ -19,6 +18,17 @@ There are two type of data files in this repository.
    This is a collection of rows specifying actual /wILI/ values for a given region
    and time identifier (see above).
 
+   The dataframe looks like this
+
+   | epiweek | region |            wili |
+   |---------+--------+-----------------|
+   |  199740 | nat    | 1.1014825590386 |
+   |  199741 | nat    | 1.2000682166927 |
+   |  199742 | nat    |  1.378763290902 |
+   |  199743 | nat    | 1.1991993499089 |
+   |  199744 | nat    |  1.656177824396 |
+   |  199745 | nat    | 1.4132646790523 |
+   
    #+BEGIN_QUOTE
    Whether this represents the observed values at the time remains to be
    ascertained since data is, as of now, pulled from another repository. Once a
