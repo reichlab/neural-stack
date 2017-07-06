@@ -1,0 +1,19 @@
+#+TITLE: Encoding Distributions
+#+AUTHOR: Abhinav Tushar
+
+Prediction output from each model is a /binned/ probability distribution over a
+numerical range. For example, week ahead targets are predicted by component
+models by providing 131 probabilities (summing to 1) corresponding to /wili/
+values from 0.0% to 13.0% in step of 0.1% and another bin representing all
+values from 13.0% (excluding) to 100%.
+
+If a model is using distributions as input, at each time step (epiweek) it has
+to take in at least one full vector representing the distribution and more if
+the model uses a certain number of past week predictions too. This might or
+might not affect the model performance. The amount of numbers going in can be
+reduced by summarizing the distribution in some ways. A few techniques are:
+
+1. Use simple statistics of the distributions like variance.
+2. Use a convolutional layer to encode the distributions.
+
+TODO
