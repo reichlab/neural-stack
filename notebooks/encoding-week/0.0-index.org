@@ -1,0 +1,25 @@
+#+TITLE: Encoding weeks
+#+AUTHOR: Abhinav Tushar
+
+
+The ensemble models have an option to use the information about current /epiweek/
+as one of the inputs. These epiweeks go from 01 to 52 (or 53 ). This input can
+be improved by encoding epiweeks using methods that:
+
+1. Keeps the representation somewhere around 0, 1.
+2. Preserve the cyclic property of weeks, i.e. week 01 should be as near to week
+   02 as to week 52 (or 53) of last year.
+
+There are a few tricks to represent weeks like this. One simple method is to put
+weeks on a 360^o circle and use $sin$, $cos$ of the angle as
+representation [fn:sx].
+
+Another, slightly different, approach is to fit a model on the epiweeks to
+predict the /wili/ values and use an intermediate representation of epiweek as its
+encoding. Since data mapping epiweek to wili is more extensive, this can create
+a more useful input representation.
+
+The notebooks in this directory explore these ideas and create/evaluate models
+for the same.
+
+[fn:x] https://stats.stackexchange.com/a/263809
