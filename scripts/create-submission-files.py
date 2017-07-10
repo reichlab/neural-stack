@@ -14,7 +14,6 @@ import predict
 import submission
 
 
-
 # Generate for current season only
 flusight_data_dir = Path(snakemake.input[1]).joinpath("2016-2017")
 models_dir = Path(snakemake.input[0])

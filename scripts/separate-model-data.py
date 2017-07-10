@@ -2,6 +2,7 @@
 Create model data files from ensemble-data.csv
 """
 
+import gzip
 import numpy as np
 import os
 import pandas as pd
@@ -9,7 +10,8 @@ import pymmwr
 
 
 # Read predictions
-df = pd.read_csv(snakemake.input.ensemble_csv, index_col=0)
+with gzip.open(snakemake.input.ensemble_csv) as fp:
+    df = pd.read_csv(fp, index_col=0)
 df = df.dropna()
 
 def get_epiweek(season: str, season_wk: int):
