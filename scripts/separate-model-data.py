@@ -31,7 +31,7 @@ def get_epiweek(season: str, season_wk: int):
         week -= first_year_weeks
         epiweek_year = season_second_year
 
-    return int(str(epiweek_year) + str(week).zfill(2))
+    return epiweek_year * 100 + week
 
 df["epiweek"] = list(map(get_epiweek, df["analysis_time_season"], df["analysis_time_season_week"]))
 df.drop(["analysis_time_season", "analysis_time_season_week"], axis=1, inplace=True)
