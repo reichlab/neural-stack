@@ -36,6 +36,21 @@ def get_epiweek(season: str, season_wk: int):
 df["epiweek"] = list(map(get_epiweek, df["analysis_time_season"], df["analysis_time_season_week"]))
 df.drop(["analysis_time_season", "analysis_time_season_week"], axis=1, inplace=True)
 
+# Use short region code
+df["region"] = df["region"].map({
+    "National": "nat",
+    "Region1": "hhs1",
+    "Region2": "hhs2",
+    "Region3": "hhs3",
+    "Region4": "hhs4",
+    "Region5": "hhs5",
+    "Region6": "hhs6",
+    "Region7": "hhs7",
+    "Region8": "hhs8",
+    "Region9": "hhs9",
+    "Region10": "hhs10",
+})
+
 models = list(df["model"].unique())
 for model in models:
     model_dir = os.path.join(snakemake.input.out_dir, model)
