@@ -26,7 +26,7 @@ class ComponentDataLoader:
 
         if region_identifier:
             selection = self.index["region"] == region_identifier
-            return [self.index[selection], data[selection]]
+            return [self.index[selection].reset_index(drop=True), data[selection]]
         else:
             return [self.index, data]
 
@@ -50,7 +50,7 @@ class ActualDataLoader:
         # Subset by region
         if region_identifier:
             selection = self.index["region"] == region_identifier
-            index = self.index[selection]
+            index = self.index[selection].reset_index(drop=True)
             wili = self._df[selection]["wili"].values
         else:
             index = self.index
@@ -74,7 +74,7 @@ class ActualDataLoader:
                     shifted_data_indices.append(idx + week_shift)
                 else:
                     shifted_selection.append(False)
-            return [index[shifted_selection], wili[shifted_data_indices]]
+            return [index[shifted_selection].reset_index(drop=True), wili[shifted_data_indices]]
 
         else:
             return [index, wili]
