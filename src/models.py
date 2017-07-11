@@ -178,33 +178,6 @@ def conv2D_distribution(n_models,
     return merged
 
 
-def week_embedding(embedding_size):
-    """
-    Learn embedding matrix for weeks using week number as input and wili
-    as output
-
-    Parameters
-    ----------
-    embedding_size : int
-        Embedding vector size for week
-    """
-
-    model = Sequential()
-
-    model.add(Embedding(54, embedding_size, input_length=1))
-    model.add(Flatten())
-    model.add(Activation("relu"))
-    model.add(Dense(30))
-    model.add(Activation("relu"))
-    model.add(Dense(20))
-    model.add(Activation("relu"))
-    model.add(Dense(10))
-    model.add(Activation("relu"))
-    model.add(Dense(1))
-
-    return model
-
-
 def residual_model(prediction_horizon):
     """
     Fit on the residual of prediction from another model
