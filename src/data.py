@@ -78,3 +78,22 @@ class ActualDataLoader:
 
         else:
             return [index, wili]
+
+
+def filter_common_indices(*indices):
+    """
+    Return a list of integers for each of the indices such that slicing using
+    these lists gives us dataframes matching the epiweek and regions in all the
+    indices asked.
+    """
+
+    merge_on = ["epiweek", "region"]
+
+    assert len(indices) > 1, "At least two indices needed"
+    merged = pd.merge(indices[0].reset_index(), indices[1].reset_index(), on=merge_on)
+    for i in range(2, len(indices)):
+        merged = pd.merge(merged, indices[i].reset_index(), on=merge_on)
+
+    # Return just the numbers
+    return list(merged.drop(merge_on, axis=1).values.T)
+
