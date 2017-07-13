@@ -22,12 +22,14 @@ pipenv run jupyter notebook
 * Data
 
 Ensemble models work on US flu data from
-[CDC](https://www.cdc.gov/flu/weekly/index.htm). The data (actual and
+[[https://www.cdc.gov/flu/weekly/index.htm][CDC]]. The data (actual and
 predictions) are organized in both temporal and spatial dimension. Spatially,
-there are data for [[https://www.hhs.gov/about/agencies/iea/regional-offices/index.html][10 HHS regions]] (identified by ~nat~, ~hhs1~, ~hhs2~ etc.).
-Temporally, data points are assigned a time identifier which looks like ~200323~.
-The first four digits identify the year and the next two identify the epiweek
-(this is the MMWR week). Thus ~200323~ means epiweek /23/ for year /2003/.
+there are data for
+[[https://www.hhs.gov/about/agencies/iea/regional-offices/index.html][10 HHS
+regions]] (identified by ~nat~, ~hhs1~, ~hhs2~ etc.). Temporally, data points
+are assigned a time identifier which looks like ~200323~. The first four digits
+identify the year and the next two identify the epiweek (this is the MMWR week).
+Thus ~200323~ means epiweek /23/ for year /2003/.
 
 There are two type of data files needed by the models.
 
