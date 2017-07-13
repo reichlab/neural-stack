@@ -21,15 +21,12 @@ pipenv run jupyter notebook
 
 * Data
 
-Ensemble models work on US flu data from
-[[https://www.cdc.gov/flu/weekly/index.htm][CDC]]. The data (actual and
-predictions) are organized in both temporal and spatial dimension. Spatially,
-there are data for
-[[https://www.hhs.gov/about/agencies/iea/regional-offices/index.html][10 HHS
-regions]] (identified by ~nat~, ~hhs1~, ~hhs2~ etc.). Temporally, data points
-are assigned a time identifier which looks like ~200323~. The first four digits
-identify the year and the next two identify the epiweek (this is the MMWR week).
-Thus ~200323~ means epiweek /23/ for year /2003/.
+Ensemble models work on US flu data from [[https://www.cdc.gov/flu/weekly/index.htm][CDC]]. The data (actual and predictions)
+are organized in both temporal and spatial dimension. Spatially, there are data
+points for [[https://www.hhs.gov/about/agencies/iea/regional-offices/index.html][10 HHS regions]] (identified by ~nat~, ~hhs1~, ~hhs2~ etc.). Temporally, data
+points are assigned a time identifier which looks like ~200323~. The first four
+digits identify the year and the next two identify the epiweek (this is the MMWR
+week). Thus ~200323~ means epiweek /23/ for year /2003/.
 
 There are two type of data files needed by the models.
 
@@ -52,6 +49,16 @@ There are two type of data files needed by the models.
    the rows of which are mapped to a region and time using a separate ~identifier~
    file (a csv with "epiweek" and "region" columns). The matrix files contain
    week ahead predictions and special target predictions like /peak week/.
+
+   Each wili target (week ahead targets and peak wili target) has 131 bins. 130
+   bins as follows [0.0, 0.1), [0.1, 0.2) ... [12.9, 13.0) and one bin for
+   values in [13.0, 100].
+
+   For /onset week/, we have 34 bins. 33 of these represent the weeks, while the
+   last one represents bin for /no/ onset. /Peak week/ just has 33 bins representing
+   the weeks. As of now, these bins are spread over the internally used /season/
+   representation and needs some transformation for starting at the mmwr week 1
+   for each year.
 
 * Ensemble specifications
 
@@ -105,5 +112,8 @@ Notebook ~./notebooks/1.0-mixture-density-network.ipynb~ uses a simple mixture
 density network to predict a mixture of normal distributions to provide the
 target distributions.
 
-** TODO Residual based
-Fit the residual of component model predictions.
+** TODO Residual fit network
+
+Residual model trains a neural network on the residual we get after fitting the
+component models to actual data, resulting in an overall summation based
+ensemble. The notebook for this will be up soon.
