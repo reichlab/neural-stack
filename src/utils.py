@@ -4,6 +4,7 @@ Utilities for working with distributions and similar stuff
 
 import keras.backend as K
 import numpy as np
+import losses
 from scipy.stats import norm
 
 
@@ -50,12 +51,8 @@ def mdn_params_to_dists(params, bins=np.linspace(0, 12.9, 130)):
     """
 
     n_mix = params.shape[1] // 3
-    mu = params[:, :n_mix]
-    # Making sure sigma is above zero
-    sigma = K.relu(params[:, n_mix:2 * n_mix]) + K.epsilon()
-    w = params[:, 2 * n_mix:]
-    # Weights should sum to one
-    w = K.softmax(w).eval()
+    mu, sigma, w = losses.separate_mdn_params(params, n_mix)
+    w = w.eval()
 
     dists = np.zeros((params.shape[0], bins.shape[0]))
 
