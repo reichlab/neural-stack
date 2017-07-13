@@ -40,10 +40,10 @@ def dist_quartiles(dist, bins=np.linspace(0, 12.9, 130)):
     Return quartiles division points
     """
 
-    return [
+    return np.array([
         np.max((np.cumsum(dist) < i) * bins)
         for i in [0.25, 0.5, 0.75]
-    ]
+    ])
 
 def mdn_params_to_dists(params, bins=np.linspace(0, 12.9, 130)):
     """
