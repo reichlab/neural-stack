@@ -76,3 +76,22 @@ def wili_to_dists(wili, bins=np.linspace(0, 12.9, 130)):
         y[i, hot_idx] = 1
 
     return y
+
+def get_merged_features(components, feature_functions):
+    """
+    Return a single matrix of distributions transformed to features
+    """
+
+    feature_blocks = []
+
+    for fn in feature_functions:
+        model_blocks = [
+            np.array([fn(dist) for dist in comp]) for comp in components
+        ]
+        for im in range(len(model_blocks)):
+            if len(model_blocks[im].shape) == 1:
+                model_blocks[im] = np.expand_dims(model_blocks[im], axis=1)
+
+        feature_blocks.append(np.concatenate(model_blocks, axis=1))
+
+    return np.concatenate(feature_blocks, axis=1)
