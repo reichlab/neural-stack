@@ -52,6 +52,7 @@ def mdn_params_to_dists(params, bins=np.linspace(0, 12.9, 130)):
 
     n_mix = params.shape[1] // 3
     mu, sigma, w = losses.separate_mdn_params(params, n_mix)
+    sigma = sigma.eval()
     w = w.eval()
 
     dists = np.zeros((params.shape[0], bins.shape[0]))

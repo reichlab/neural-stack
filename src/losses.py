@@ -21,7 +21,7 @@ def separate_mdn_params(params, n_mix):
     # Parameters are arranged in sequence. First means, then sigmas and then
     # mixture weights
     mu = params[:, :n_mix]
-    sigma = K.relu(params[:, n_mix:2 * n_mix]) + K.epsilon()
+    sigma = K.exp(params[:, n_mix:2 * n_mix]) + K.epsilon()
     w = params[:, 2 * n_mix:]
     w = K.softmax(w)
 
