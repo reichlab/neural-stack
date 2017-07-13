@@ -17,7 +17,7 @@ class ComponentDataLoader:
         self.root_path = os.path.join(data_dir, "processed", "components", model_identifier)
         self.index = pd.read_csv(os.path.join(self.root_path, "index.csv"))
 
-    def get(self, data_identifier: str, region_identifier=None):
+    def get(self, data_identifier, region_identifier=None):
         """
         Return data for asked data_identifier along with index
         """
@@ -114,11 +114,9 @@ def get_week_ahead_training_data(week_ahead, region_identifier, actual_data_load
     component_data_loaders : List[ComponentDataLoader]
     """
 
-    week_targets = ["one_wk", "two_wk", "three_wk", "four_wk"]
-
     actual_idx, actual_data = actual_data_loader.get(week_shift=week_ahead, region_identifier=region_identifier)
     component_idx_data = [
-        component_data_loader.get(week_targets[week_ahead - 1], region_identifier=region_identifier)
+        component_data_loader.get(week_ahead, region_identifier=region_identifier)
         for component_data_loader in component_data_loaders
     ]
 

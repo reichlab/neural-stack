@@ -19,12 +19,12 @@ rule separate_model_data:
     output:
         index = expand(COMPONENTS_PATH + "{model}/index.csv", model=MODELS),
         scores = expand(COMPONENTS_PATH + "{model}/scores.np.gz", model=MODELS),
-        onset = expand(COMPONENTS_PATH + "{model}/onset.np.gz", model=MODELS),
+        onset = expand(COMPONENTS_PATH + "{model}/onset_wk.np.gz", model=MODELS),
         peak_wk = expand(COMPONENTS_PATH + "{model}/peak_wk.np.gz", model=MODELS),
         peak = expand(COMPONENTS_PATH + "{model}/peak.np.gz", model=MODELS),
-        one_wk = expand(COMPONENTS_PATH + "{model}/one_wk.np.gz", model=MODELS),
-        two_wks = expand(COMPONENTS_PATH + "{model}/two_wk.np.gz", model=MODELS),
-        three_wks = expand(COMPONENTS_PATH + "{model}/three_wk.np.gz", model=MODELS),
-        four_wks = expand(COMPONENTS_PATH + "{model}/four_wk.np.gz", model=MODELS)
+        wk_1 = expand(COMPONENTS_PATH + "{model}/1.np.gz", model=MODELS),
+        wk_2 = expand(COMPONENTS_PATH + "{model}/2.np.gz", model=MODELS),
+        wk_3 = expand(COMPONENTS_PATH + "{model}/3.np.gz", model=MODELS),
+        wk_4 = expand(COMPONENTS_PATH + "{model}/4.np.gz", model=MODELS)
     script:
         "scripts/separate-model-data.py"
