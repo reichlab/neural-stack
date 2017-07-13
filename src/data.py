@@ -97,3 +97,40 @@ def filter_common_indices(*indices):
     # Return just the numbers
     return list(merged.drop(merge_on, axis=1).values.T)
 
+
+def get_week_ahead_training_data(week_ahead, region_identifier, actual_data_loader, component_data_loaders):
+    """
+    Return well formed X's and y's for asked week and region
+
+    Parameters
+    -----------
+    week_ahead : int
+        A positive value of week ahead number, e.g. 1 if we are predicting one
+        week ahead
+    region_identifier : str
+        A string representation for region (like "nat") or None if all data is
+        needed
+    actual_data_loader : ActualDataLoader
+    component_data_loaders : List[ComponentDataLoader]
+    """
+
+    week_targets = ["one_wk", "two_wk", "three_wk", "four_wk"]
+
+    actual_idx, actual_data = actual_data_loader.get(week_shift=week_ahead, region_identifier=region_identifier)
+    component_idx_data = [
+        component_data_loader.get(week_targets[week_ahead - 1], region_identifier=region_identifier)
+        for component_data_loader in component_data_loaders
+    ]
+
+    filter_indices = filter_common_indices(*[actual_idx, *[c[0] for c in component_idx_data]])
+
+    y = actual_data[filter_indices[0]]
+
+    # NOTE: Skipping the last bin
+    Xs = []
+    for i in range(len(component_idx_data)):
+        Xs.append(
+            np.exp(component_idx_data[i][1][filter_indices[i + 1]][:, :-1])
+        )
+
+    return y, Xs
