@@ -21,7 +21,7 @@ def separate_mdn_params(params, n_mix):
     # Parameters are arranged in sequence. First means, then sigmas and then
     # mixture weights
     mu = params[:, :n_mix]
-    sigma = K.relu(params[:, n_mix:2 * n_mix])
+    sigma = K.relu(params[:, n_mix:2 * n_mix]) + K.epsilon()
     w = params[:, 2 * n_mix:]
     w = K.softmax(w)
 
@@ -60,12 +60,10 @@ def mdn_loss(y, params, n_mix=None):
             Standard deviation for each of the mixture
         """
 
-        sigma_ep = sigma + K.epsilon()
-
         out = -(K.reshape(y, (-1, 1)) - mu) ** 2
-        out /= (2 * sigma_ep ** 2)
+        out /= (2 * sigma ** 2)
         out = K.exp(out)
-        out /= sigma_ep * np.sqrt(2 * np.pi)
+        out /= sigma * np.sqrt(2 * np.pi)
         return out
 
     mu, sigma, w = separate_mdn_params(params, n_mix)
