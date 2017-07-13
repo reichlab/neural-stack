@@ -1,15 +1,107 @@
 #+TITLE: Neural Stack
 
-Neural network based ensemble of flu prediction models. Some development related
-notes are in /models.org/. Information about data are in /data.org/. This uses
-snakemake to automate ins and outs from this repository.
+Neural network based ensemble of flu prediction models.
 
-Model source code lies in ~./src~. Experiments are kept in ~./notebooks~.
+Experiments are kept in ~./notebooks~. Non-notebook code lies in ~./src~. Helper
+scripts for snakemake are in ~./scripts~.
 
 #+BEGIN_SRC sh
 pip install pipenv
 pipenv install
 
-# Read the Snakefile for targets
-pipenv run snakemake <target>
+# Collect latest actual data
+pipenv run snakemake actual_data
+# Separate model predictions from adaptively ensemble project
+pipenv run snakemake separate_model_data
+
+# Run notebooks
+cd notebooks
+pipenv run jupyter notebook
 #+END_SRC
+
+* Data
+
+Ensemble models work on US flu data from
+[CDC](https://www.cdc.gov/flu/weekly/index.htm). The data (actual and
+predictions) are organized in both temporal and spatial dimension. Spatially,
+there are data for [[https://www.hhs.gov/about/agencies/iea/regional-offices/index.html][10 HHS regions]] (identified by ~nat~, ~hhs1~, ~hhs2~ etc.).
+Temporally, data points are assigned a time identifier which looks like ~200323~.
+The first four digits identify the year and the next two identify the epiweek
+(this is the MMWR week). Thus ~200323~ means epiweek /23/ for year /2003/.
+
+There are two type of data files needed by the models.
+
+1. *Actual data*
+
+   This is a collection of rows specifying actual /wILI/ values for a given region
+   and time identifier (see above).
+
+   The dataframe looks like this
+
+   | epiweek | region |            wili |
+   |---------+--------+-----------------|
+   |  199740 | nat    | 1.1014825590386 |
+   |  199741 | nat    | 1.2000682166927 |
+   
+
+2. *Prediction file for each model*
+
+   Each model provides individual files with matrix data (~numpy.savetxt~ format),
+   the rows of which are mapped to a region and time using a separate ~identifier~
+   file (a csv with "epiweek" and "region" columns). The matrix files contain
+   week ahead predictions and special target predictions like /peak week/.
+
+* Ensemble specifications
+
+** Input
+
+Following are possible inputs to the ensemble models. Not all inputs are going
+to helpful. This section just tries to document the possibilities.
+
+1. /Point predictions/ from component models
+
+2. /Full probability distributions/ from component models
+
+   Predictions from a component model are discrete probability distributions,
+   these can be used instead of the point predictions as above. See
+   ~./notebooks/encoding-distribution~ for more details on ways we represent the
+   distributions in models.
+
+3. /Week/ of the input
+
+   This provides an indication of which regime we are working in as far as
+   seasonal patterns as concerned. See notebooks inside
+   ~./notebooks/encoding-week~ for possible approaches.
+
+4. /Log scores of model predictions/
+
+   Log scores of models provide a simple way to connect current week to the
+   model accuracy. This can be used to learn weights for component models
+   depending on the time of year.
+
+5. /Actual data for past weeks/
+
+All of these inputs can be extended by using past values. For example, instead
+of taking just the current prediction, the ensemble model can take past /n/ week
+predictions.
+
+** Output
+
+Output from the ensemble at each time step is a probability distribution for /x/
+week ahead predictions. Other targets are /onset week/, /peak week/ and /peak value/.
+These are also represented as probability distributions so most of the ideas
+work similarly.
+
+* Models
+
+This section contains descriptions of models currently working in this
+repository.
+
+** Mixture Density Network
+
+Notebook ~./notebooks/1.0-mixture-density-network.ipynb~ uses a simple mixture
+density network to predict a mixture of normal distributions to provide the
+target distributions.
+
+** TODO Residual based
+Fit the residual of component model predictions.
