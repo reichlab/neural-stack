@@ -156,8 +156,4 @@ class Submission:
             (self.df["Target"] == MAP_TARGET[target])
         ]["Value"].as_matrix()[1:] # Skip point predictions
 
-        if target == "onset":
-            # Don't return none bin
-            return values[:-1]
-        else:
-            return values
+        return values
