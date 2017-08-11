@@ -44,15 +44,7 @@ MAP_REGION = {
 }
 
 
-def read_csv(file_name, time: int, season: str, model: str):
-    """
-    Return a submission object from give file
-    """
-
-    return Submission(pd.read_csv(file_name), time, season, model)
-
-
-def segment_from_X(X: np.ndarray, point_prediction, region: str, target: str, time: int) -> Dict:
+def segment_from_X(X: np.ndarray, point_prediction, region: str, target: str) -> Dict:
     """
     Create a segment of rows going into submission
     """
@@ -109,9 +101,7 @@ def segment_from_X(X: np.ndarray, point_prediction, region: str, target: str, ti
                 f"{bin_starts[idx]:.1f}", f"{bin_ends[idx]:.1f}", x
             ])
 
-    segment = {"time": time, "df": pd.DataFrame(df)[SUB_HEADER]}
-
-    return segment
+    return pd.DataFrame(df)[SUB_HEADER]
 
 
 def sub_from_segments(segments: List):
@@ -120,12 +110,9 @@ def sub_from_segments(segments: List):
     Assume ordered segments in submission format
     """
 
-    if len(set([segment["time"] for segment in segments])) > 1:
-        raise ValueError("Times are not same for all segments")
+    df = pd.concat([segment for segment in segments])
 
-    df = pd.concat([segment["df"] for segment in segments])
-
-    return Submission(df, time=segments[0]["time"], season=None, model=None)
+    return Submission(df)
 
 
 class Submission:
@@ -133,14 +120,11 @@ class Submission:
     Class for submission file in long format
     """
 
-    def __init__(self, df, time: int, season: str, model: str) -> None:
+    def __init__(self, df) -> None:
         """
         Create submission object from df
         """
 
-        self.time = time
-        self.season = season
-        self.model = model
         self.df = df
 
     def to_csv(self, file_name) -> None:
