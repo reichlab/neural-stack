@@ -10,6 +10,11 @@ rule actual_data:
     script:
         "scripts/get-actual-data.py"
 
+# Clear component model data
+rule clear_component_data:
+    input: COMPONENTS_PATH
+    shell: "cd {input}; rm -r *;"
+
 # Use ensemble-data.csv to create separate prediction files for each
 # model (KDE, KCDE, SARIMA)
 rule separate_model_data:
