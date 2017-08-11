@@ -19,14 +19,13 @@ SUB_HEADER = [
 
 # Map from targets used in models to that in submissions
 MAP_TARGET = {
-    model: submission
-    for model, submission in zip([
-        "onset", "peak_week", "peak", "one_week", "two_weeks",
-        "three_weeks", "four_weeks"
-    ], [
-        "Season onset", "Season peak week", "Season peak percentage",
-        "1 wk ahead", "2 wk ahead", "3 wk ahead", "4 wk ahead"
-    ])
+    1: "1 wk ahead",
+    2: "2 wk ahead",
+    3: "3 wk ahead",
+    4: "4 wk ahead",
+    "onset_wk": "Season onset",
+    "peak_wk": "Season peak week",
+    "peak": "Season peak percentage"
 }
 
 # Map from region used in models to that in submissions
@@ -66,7 +65,7 @@ def segment_from_X(X: np.ndarray, point_prediction, region: str, target: str, ti
         for i in range(2, 7):
             df[SUB_HEADER[i]].append(row[i])
 
-    if target in ["onset", "peak_week"]:
+    if target in ["onset_wk", "peak_wk"]:
         # It should have 33 rows
         # TODO Fix the number of bins if the season has different number of weeks
         if X.shape != (33,):
