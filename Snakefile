@@ -5,10 +5,8 @@ COMPONENTS_PATH = "data/processed/components/"
 # See the script to check if the data collected are from the current
 # issue or are from the corresponding past week
 rule actual_data:
-    output:
-        "data/processed/actual.csv"
-    script:
-        "scripts/get-actual-data.py"
+    output: "data/processed/actual.csv"
+    script: "scripts/get-actual-data.py"
 
 # Clear component model data
 rule clear_component_data:
@@ -31,5 +29,9 @@ rule separate_model_data:
         wk_2 = expand(COMPONENTS_PATH + "{model}/2.np.gz", model=MODELS),
         wk_3 = expand(COMPONENTS_PATH + "{model}/3.np.gz", model=MODELS),
         wk_4 = expand(COMPONENTS_PATH + "{model}/4.np.gz", model=MODELS)
-    script:
-        "scripts/separate-model-data.py"
+    script: "scripts/separate-model-data.py"
+
+# Convert flusight style data directory to component data for this repository
+# Need --config data=<path-to-flusight-data-dir> to be passed to snakemake
+rule pull_flusight_data:
+    script: "scripts/pull-flusight-data.py"
