@@ -31,12 +31,17 @@ MAP_TARGET = {
 
 # Map from region used in models to that in submissions
 MAP_REGION = {
-    "".join(submission.split()[1:]): submission
-    for submission in [
-            "US National", "HHS Region 1", "HHS Region 2", "HHS Region 3",
-            "HHS Region 4", "HHS Region 5", "HHS Region 6", "HHS Region 7",
-            "HHS Region 8", "HHS Region 9", "HHS Region 10"
-    ]
+    "nat": "US National",
+    "hhs1": "HHS Region 1",
+    "hhs2": "HHS Region 2",
+    "hhs3": "HHS Region 3",
+    "hhs4": "HHS Region 4",
+    "hhs5": "HHS Region 5",
+    "hhs6": "HHS Region 6",
+    "hhs7": "HHS Region 7",
+    "hhs8": "HHS Region 8",
+    "hhs9": "HHS Region 9",
+    "hhs10": "HHS Region 10"
 }
 
 
