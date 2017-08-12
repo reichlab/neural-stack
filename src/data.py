@@ -17,15 +17,34 @@ class ComponentDataLoader:
         self.root_path = os.path.join(data_dir, "processed", "components", model_identifier)
         self.index = pd.read_csv(os.path.join(self.root_path, "index.csv"))
 
-    def get(self, data_identifier, region_identifier=None):
+    def get(self, data_identifier, region_identifier=None, epiweek_range=None):
         """
         Return data for asked data_identifier along with index
+
+        Parameters
+        ----------
+        data_identifier : str | int
+            Identifier for the target to load
+        region_identifier : str | None
+            Short region code (nat, hhs2 ...) or None for all regions
+        epiweek_range : List[int]
+            List of two ints representing the range of epiweeks (inclusive) to get data for
         """
 
         data = np.loadtxt(os.path.join(self.root_path, f"{data_identifier}.np.gz"))
 
-        if region_identifier:
-            selection = self.index["region"] == region_identifier
+        # All true selection
+        selection = self.index["epiweek"] > 0
+        narrowing = False
+        if region_identifier is not None:
+            selection = selection & (self.index["region"] == region_identifier)
+            narrowing = True
+
+        if epiweek_range is not None:
+            selection = selection & (self.index["epiweek"] <= epiweek_range[1]) & (self.index["epiweek"] >= epiweek_range[0])
+            narrowing = True
+
+        if narrowing:
             return [self.index[selection].reset_index(drop=True), data[selection]]
         else:
             return [self.index, data]
