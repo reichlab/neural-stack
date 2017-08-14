@@ -95,3 +95,25 @@ def get_merged_features(components, feature_functions):
         feature_blocks.append(np.concatenate(model_blocks, axis=1))
 
     return np.concatenate(feature_blocks, axis=1)
+
+def shift_distribution(distributions, shift_values, bins=np.linspace(0, 12.9, 130)):
+    """
+    Shift the distribution by a value and renormalize to make it sum to one
+    """
+
+    # Convert shift values to number of bins
+    bin_shift = [int(sv / (bins[1] - bins[0])) for sv in shift_values]
+
+    output = np.zeros_like(distributions)
+
+    for i in range(distributions.shape[0]):
+        shift = bin_shift[i]
+        output[i, :] = np.roll(distributions[i, :], shift)
+        # Don't circle around
+        # if shift > 0:
+        #     output[i, :shift] = np.zeros((shift, ))
+        # elif shift < 0:
+        #     output[i, -shift:] = np.zeros((shift, ))
+
+    # output /= output.sum(axis=0) + K.epsilon()
+    return output
