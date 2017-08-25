@@ -117,3 +117,21 @@ target distributions.
 Residual model trains a neural network on the residual we get after fitting the
 component models to actual data, resulting in an overall summation based
 ensemble. The notebook for this will be up soon.
+
+* Experiments for paper
+
+The following section documents two experiments to run to test our the neural network ensembles.
+
+** A: FluSightNetwork models (2010/2011 - 2016/2017)
+    
+    - 4 training seasons, 3 testing
+    - using some selection of models (>3) from FluSightNetwork
+    - component model forecasts are made on unrevised data prospectively
+    - ensembles to compare: EW, CW, NN1, NN2 (i.e. two neural network specifications based on selection in training phase)
+    
+** B: CDC Flu forecasting based on Evan's paper (1997/1998 - 2015/2016)
+
+    - 14 training, 5 test seasons
+    - 3 component models (KDE, KCDE, SARIMA)
+    - component model forecasts made on revised data and in training phase are done using LOSO
+    - ensembles to compare: EW, CW, NN1, NN2
