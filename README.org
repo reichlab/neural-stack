@@ -134,4 +134,4 @@ The following section documents two experiments to run to test our the neural ne
     - 14 training, 5 test seasons
     - 3 component models (KDE, KCDE, SARIMA)
     - component model forecasts made on revised data and in training phase are done using LOSO
-    - ensembles to compare: EW, CW, NN1, NN2
+    - ensembles to compare: EW, CW, FW-reg-w (?), NN1, NN2
