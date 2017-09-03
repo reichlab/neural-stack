@@ -6,6 +6,7 @@ import keras.backend as K
 import numpy as np
 import losses
 from scipy.stats import norm
+from sklearn.model_selection import KFold
 
 
 def dist_mean(dist, bins=np.linspace(0, 12.9, 130)):
@@ -16,6 +17,7 @@ def dist_mean(dist, bins=np.linspace(0, 12.9, 130)):
 
     return np.sum(bins * dist)
 
+
 def dist_max(dist, bins=np.linspace(0, 12.9, 130)):
     """
     Return value for max bin
@@ -23,27 +25,29 @@ def dist_max(dist, bins=np.linspace(0, 12.9, 130)):
 
     return bins[np.argmax(dist)]
 
+
 def dist_std(dist, bins=np.linspace(0, 12.9, 130)):
     """
     Return standard deviation
     """
 
     mean = dist_mean(dist, bins)
-    var = np.sum(((bins - mean) ** 2) * dist)
+    var = np.sum(((bins - mean)**2) * dist)
     return np.sqrt(var)
+
 
 def dist_median(dist, bins=np.linspace(0, 12.9, 130)):
     return np.max((np.cumsum(dist) < 0.5) * bins)
+
 
 def dist_quartiles(dist, bins=np.linspace(0, 12.9, 130)):
     """
     Return quartiles division points
     """
 
-    return np.array([
-        np.max((np.cumsum(dist) < i) * bins)
-        for i in [0.25, 0.5, 0.75]
-    ])
+    return np.array(
+        [np.max((np.cumsum(dist) < i) * bins) for i in [0.25, 0.5, 0.75]])
+
 
 def mdn_params_to_dists(params, bins=np.linspace(0, 12.9, 130)):
     """
@@ -64,6 +68,7 @@ def mdn_params_to_dists(params, bins=np.linspace(0, 12.9, 130)):
     dists /= dists.sum(axis=1, keepdims=True)
     return dists
 
+
 def wili_to_dists(wili, bins=np.linspace(0, 12.9, 130)):
     """
     Wili values to one hot encoded bins
@@ -76,6 +81,7 @@ def wili_to_dists(wili, bins=np.linspace(0, 12.9, 130)):
         y[i, hot_idx] = 1
 
     return y
+
 
 def get_merged_features(components, feature_functions):
     """
@@ -96,7 +102,10 @@ def get_merged_features(components, feature_functions):
 
     return np.concatenate(feature_blocks, axis=1)
 
-def shift_distribution(distributions, shift_values, bins=np.linspace(0, 12.9, 130)):
+
+def shift_distribution(distributions,
+                       shift_values,
+                       bins=np.linspace(0, 12.9, 130)):
     """
     Shift the distribution by a value and renormalize to make it sum to one
     """
@@ -117,3 +126,55 @@ def shift_distribution(distributions, shift_values, bins=np.linspace(0, 12.9, 13
 
     # output /= output.sum(axis=0) + K.epsilon()
     return output
+
+
+def cv_train(gen_model, train_model, X, y, k=10):
+    """
+    Train the model using KFold cross validation, return a finally trained
+    model on all the data.
+
+    Parameters
+    ----------
+    gen_model : function
+        Function that returns a newly created model when called
+    train_model : function
+        Function taking in model, train_data, val_data and performing actual
+        training. It returns keras training history for the run.
+    X : np.ndarray
+        Numpy array representing the model input
+    y : np.ndarray
+        Numpy array representing the actual output
+    k : int
+        k value for the k-fold split
+    """
+
+    kf = KFold(n_splits=k, shuffle=True)
+
+    histories = []
+    for train_indices, val_indices in kf.split(X):
+        model = gen_model()
+        train_data = (X[train_indices], y[train_indices])
+        val_data = (X[val_indices], y[val_indices])
+        histories.append(train_model(model, train_data, val_data))
+
+    cv_metadata = [
+        {
+            "training_loss": history.history["loss"][-1],
+            "validation_loss": history.history["val_loss"][-1],
+            "history": history
+        }
+        for history in histories
+    ]
+
+    mean_losses = {
+        "training_loss": np.mean([it["training_loss"] for it in cv_metadata]),
+        "validation_loss": np.mean([it["validation_loss"] for it in cv_metadata])
+    }
+
+    # Do final training on complete set
+    model = gen_model()
+    train_data = (X, y)
+    val_data = None
+    final_history = train_model(model, train_data, val_data)
+
+    return [model, mean_losses, cv_metadata, final_history]
