@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "639b9875320bf7d11679471359b2c6d6a31e7a62c2fea330e76303945e5618a3"
+            "sha256": "06e10a2c8c142c7d8795d11ff81b72ef32950ac2a47efa6b460ce36167664eb3"
         },
         "requires": {
             "python_version": "3.6"
@@ -21,7 +21,7 @@
             "version": "==0.0.3"
         },
         "certifi": {
-            "version": "==2017.4.17"
+            "version": "==2017.7.27.1"
         },
         "chardet": {
             "version": "==3.0.4"
@@ -30,7 +30,7 @@
             "version": "==0.10.0"
         },
         "decorator": {
-            "version": "==4.0.11"
+            "version": "==4.1.2"
         },
         "entrypoints": {
             "version": "==0.2.3"
@@ -45,7 +45,7 @@
             "version": "==0.1"
         },
         "idna": {
-            "version": "==2.5"
+            "version": "==2.6"
         },
         "ipykernel": {
             "version": "==4.6.1"
@@ -57,13 +57,16 @@
             "version": "==0.2.0"
         },
         "ipywidgets": {
-            "version": "==6.0.0"
+            "version": "==7.0.0"
         },
         "jedi": {
             "version": "==0.10.2"
         },
         "jinja2": {
             "version": "==2.9.6"
+        },
+        "jrun": {
+            "version": "==0.1.1"
         },
         "jsonschema": {
             "version": "==2.6.0"
@@ -75,13 +78,13 @@
             "version": "==5.1.0"
         },
         "jupyter-console": {
-            "version": "==5.1.0"
+            "version": "==5.2.0"
         },
         "jupyter-core": {
             "version": "==4.3.0"
         },
         "keras": {
-            "version": "==2.0.5"
+            "version": "==2.0.8"
         },
         "keras-tqdm": {
             "version": "==2.0.1"
@@ -96,10 +99,10 @@
             "version": "==0.7.4"
         },
         "nbconvert": {
-            "version": "==5.2.1"
+            "version": "==5.3.0"
         },
         "nbformat": {
-            "version": "==4.3.0"
+            "version": "==4.4.0"
         },
         "networkx": {
             "version": "==1.11"
@@ -114,13 +117,13 @@
             "version": "==2.6.2"
         },
         "numpy": {
-            "version": "==1.13.0"
+            "version": "==1.13.1"
         },
         "pandas": {
-            "version": "==0.20.2"
+            "version": "==0.20.3"
         },
         "pandocfilters": {
-            "version": "==1.4.1"
+            "version": "==1.4.2"
         },
         "pexpect": {
             "version": "==4.2.1"
@@ -129,10 +132,13 @@
             "version": "==0.7.4"
         },
         "prompt-toolkit": {
-            "version": "==1.0.14"
+            "version": "==1.0.15"
         },
         "ptyprocess": {
             "version": "==0.5.2"
+        },
+        "py": {
+            "version": "==1.4.34"
         },
         "pydot-ng": {
             "version": "==1.0.0"
@@ -143,14 +149,20 @@
         "pygments": {
             "version": "==2.2.0"
         },
+        "pymmwr": {
+            "version": "==0.1.0"
+        },
         "pymongo": {
-            "version": "==3.4.0"
+            "version": "==3.5.1"
         },
         "pyparsing": {
             "version": "==2.2.0"
         },
+        "pytest": {
+            "version": "==3.2.1"
+        },
         "python-dateutil": {
-            "version": "==2.6.0"
+            "version": "==2.6.1"
         },
         "pytz": {
             "version": "==2017.2"
@@ -162,22 +174,22 @@
             "version": "==16.0.2"
         },
         "qtconsole": {
-            "version": "==4.3.0"
+            "version": "==4.3.1"
         },
         "requests": {
-            "version": "==2.18.1"
+            "version": "==2.18.4"
         },
         "scikit-learn": {
-            "version": "==0.18.2"
+            "version": "==0.19.0"
         },
         "scipy": {
             "version": "==0.19.1"
         },
         "seaborn": {
-            "version": "==0.7.1"
+            "version": "==0.8"
         },
         "setuptools": {
-            "version": "==36.0.1"
+            "version": "==36.3.0"
         },
         "simplegeneric": {
             "version": "==0.8.1"
@@ -186,7 +198,7 @@
             "version": "==1.10.0"
         },
         "snakemake": {
-            "version": "==3.13.3"
+            "version": "==4.0.0"
         },
         "tables": {
             "version": "==3.4.2"
@@ -201,16 +213,16 @@
             "version": "==0.9.0"
         },
         "tornado": {
-            "version": "==4.5.1"
+            "version": "==4.5.2"
         },
         "tqdm": {
-            "version": "==4.14.0"
+            "version": "==4.15.0"
         },
         "traitlets": {
             "version": "==4.3.2"
         },
         "urllib3": {
-            "version": "==1.21.1"
+            "version": "==1.22"
         },
         "wcwidth": {
             "version": "==0.1.7"
@@ -219,10 +231,10 @@
             "version": "==0.5.1"
         },
         "widgetsnbextension": {
-            "version": "==2.0.0"
+            "version": "==3.0.2"
         },
         "wrapt": {
-            "version": "==1.10.10"
+            "version": "==1.10.11"
         }
     },
     "develop": {}
