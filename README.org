@@ -112,11 +112,11 @@ Notebook ~./notebooks/1.0-mixture-density-network.ipynb~ uses a simple mixture
 density network to predict a mixture of normal distributions to provide the
 target distributions.
 
-** TODO Residual fit network
+** Residual fit network
 
 Residual model trains a neural network on the residual we get after fitting the
 component models to actual data, resulting in an overall summation based
-ensemble. The notebook for this will be up soon.
+ensemble. The notebook for this is ~./notebooks/2.0-fitting-residuals.ipynb~.
 
 * Experiments for paper
 
