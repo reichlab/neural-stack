@@ -127,7 +127,8 @@ The following section documents two experiments to run to test our the neural ne
     - 4 training seasons, 3 testing
     - using some selection of models (>3) from FluSightNetwork
     - component model forecasts are made on unrevised data prospectively
-    - NN training/selection: validation split of 0.1 is used for tuning the model
+    - NN training/selection: K-fold crossvalidation using k=10 is used for
+      hyperparameter tuning.
     - ensembles to compare: EW, CW, NN1, NN2 (i.e. two neural network specifications based on selection in training phase)
     
 ** B: CDC Flu forecasting based on Evan's paper (1997/1998 - 2015/2016)
@@ -135,5 +136,7 @@ The following section documents two experiments to run to test our the neural ne
     - 14 training, 5 test seasons
     - 3 component models (KDE, KCDE, SARIMA)
     - component model forecasts made on revised data and in training phase are done using LOSO
-    - NN training/selection: validation split of 0.1 is used for tuning the model
+    - NN training/selection: K-fold crossvalidation using k=10 is used for
+      hyperparameter tuning.
     - ensembles to compare: EW, CW, FW-reg-w (?), NN1, NN2
+      
