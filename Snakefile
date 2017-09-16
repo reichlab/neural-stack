@@ -15,7 +15,7 @@ rule clear_component_data:
 
 # Use ensemble-data.csv to create separate prediction files for each
 # model (KDE, KCDE, SARIMA)
-rule separate_model_data:
+rule separate_ensemble_data:
     input:
         ensemble_csv = "data/external/ensemble-data.csv.gz",
         out_dir = COMPONENTS_PATH
@@ -29,7 +29,7 @@ rule separate_model_data:
         wk_2 = expand(COMPONENTS_PATH + "{model}/2.np.gz", model=MODELS),
         wk_3 = expand(COMPONENTS_PATH + "{model}/3.np.gz", model=MODELS),
         wk_4 = expand(COMPONENTS_PATH + "{model}/4.np.gz", model=MODELS)
-    script: "scripts/separate-model-data.py"
+    script: "scripts/separate-ensemble-data.py"
 
 # Convert flusight style data directory to component data for this repository
 rule pull_flusight_data:
