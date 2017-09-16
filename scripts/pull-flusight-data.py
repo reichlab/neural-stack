@@ -132,5 +132,5 @@ for model in model_csvs:
     merged_matrices = merge_matrices(all_matrices)
 
     # Write to directory
-    model_output_dir = Path(snakemake.input.output_dir).joinpath(model)
+    model_output_dir = Path(snakemake.input.out_dir).joinpath(model)
     write_model_data(model_output_dir, merged_index, merged_matrices)

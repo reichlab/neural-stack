@@ -34,6 +34,12 @@ rule separate_model_data:
 # Convert flusight style data directory to component data for this repository
 rule pull_flusight_data:
     input:
-        flusight_dir = "data/external/flusight-data-dir"
-        output_dir = COMPONENTS_PATH
+        flusight_dir = "data/external/flusight-data-dir",
+        out_dir = COMPONENTS_PATH
     script: "scripts/pull-flusight-data.py"
+
+# Convert adaptively-weighted-ensemble data files to single ensemble-data.csv.gz
+rule assemble_ensemble_data:
+    input: "data/external/adaptively-weighted-ensemble/"
+    output: "data/external/ensemble-data.csv.gz"
+    script: "scripts/assemble-ensemble-data.R"
