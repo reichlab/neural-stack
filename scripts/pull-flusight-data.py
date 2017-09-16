@@ -120,7 +120,7 @@ def merge_matrices(matrices):
 # E N T R Y  P O I N T
 # --------------------
 # Walk through the data directory
-model_csvs = get_model_csvs(Path(snakemake.config["dir"]))
+model_csvs = get_model_csvs(Path(snakemake.input.flusight_dir))
 
 for model in model_csvs:
     print(f"Parsing {model}")
@@ -132,5 +132,5 @@ for model in model_csvs:
     merged_matrices = merge_matrices(all_matrices)
 
     # Write to directory
-    model_output_dir = Path(snakemake.input[0]).joinpath(model)
+    model_output_dir = Path(snakemake.input.output_dir).joinpath(model)
     write_model_data(model_output_dir, merged_index, merged_matrices)

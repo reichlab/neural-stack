@@ -32,7 +32,8 @@ rule separate_model_data:
     script: "scripts/separate-model-data.py"
 
 # Convert flusight style data directory to component data for this repository
-# Need --config dir=<path-to-flusight-data-dir> to be passed to snakemake
 rule pull_flusight_data:
-    input: COMPONENTS_PATH
+    input:
+        flusight_dir = "data/external/flusight-data-dir"
+        output_dir = COMPONENTS_PATH
     script: "scripts/pull-flusight-data.py"
