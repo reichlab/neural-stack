@@ -6,6 +6,7 @@ import keras.backend as K
 import numpy as np
 import losses
 import pymmwr
+from tqdm import tqdm
 from scipy.stats import norm
 from sklearn.model_selection import KFold
 
@@ -152,7 +153,7 @@ def cv_train_kfold(gen_model, train_model, X, y, k=10):
     kf = KFold(n_splits=k, shuffle=True)
 
     histories = []
-    for train_indices, val_indices in kf.split(X):
+    for train_indices, val_indices in tqdm(kf.split(X)):
         model = gen_model()
         train_data = (X[train_indices], y[train_indices])
         val_data = (X[val_indices], y[val_indices])
@@ -214,7 +215,7 @@ def cv_train_loso(gen_model, train_model, X, y, yi):
     print(f"Total {len(unique_seasons)} found.")
 
     histories = []
-    for season in unique_seasons:
+    for season in tqdm(unique_seasons):
         model = gen_model()
         train_indices = np.array([i != season for i in seasons])
         train_data = (X[train_indices], y[train_indices])
