@@ -5,6 +5,7 @@ Utilities for working with distributions and similar stuff
 import keras.backend as K
 import numpy as np
 import losses
+import pymmwr
 from scipy.stats import norm
 from sklearn.model_selection import KFold
 
@@ -128,7 +129,7 @@ def shift_distribution(distributions,
     return output
 
 
-def cv_train(gen_model, train_model, X, y, k=10):
+def cv_train_kfold(gen_model, train_model, X, y, k=10):
     """
     Train the model using KFold cross validation, return a finally trained
     model on all the data.
@@ -155,6 +156,69 @@ def cv_train(gen_model, train_model, X, y, k=10):
         model = gen_model()
         train_data = (X[train_indices], y[train_indices])
         val_data = (X[val_indices], y[val_indices])
+        histories.append(train_model(model, train_data, val_data))
+
+    cv_metadata = [
+        {
+            "training_loss": history.history["loss"][-1],
+            "validation_loss": history.history["val_loss"][-1],
+            "history": history
+        }
+        for history in histories
+    ]
+
+    mean_losses = {
+        "training_loss": np.mean([it["training_loss"] for it in cv_metadata]),
+        "validation_loss": np.mean([it["validation_loss"] for it in cv_metadata])
+    }
+
+    # Do final training on complete set
+    model = gen_model()
+    train_data = (X, y)
+    val_data = None
+    final_history = train_model(model, train_data, val_data)
+
+    return [model, mean_losses, cv_metadata, final_history]
+
+
+def cv_train_loso(gen_model, train_model, X, y, yi):
+    """
+    Train the model using leave-one-season-out cross validation,
+    return a finally trained model on all the data.
+
+    Parameters
+    ----------
+    gen_model : function
+        Function that returns a newly created model when called
+    train_model : function
+        Function taking in model, train_data, val_data and performing actual
+        training. It returns keras training history for the run.
+    X : np.ndarray
+        Numpy array representing the model input
+    y : np.ndarray
+        Numpy array representing the actual output
+    yi : np.ndarray
+        Numpy array of (epiweek, region) indices
+    """
+
+    # yi to season indices
+    def epiweek_to_season(ew):
+        year, week = ew // 100, ew % 100
+        if week <= 40:
+            return year - 1
+        else:
+            return year
+
+    seasons = [epiweek_to_season(i[0]) for i in yi]
+    unique_seasons = list(set(seasons))
+    print(f"Total {len(unique_seasons)} found.")
+
+    histories = []
+    for season in unique_seasons:
+        model = gen_model()
+        train_indices = np.array([i != season for i in seasons])
+        train_data = (X[train_indices], y[train_indices])
+        val_data = (X[~train_indices], y[~train_indices])
         histories.append(train_model(model, train_data, val_data))
 
     cv_metadata = [
