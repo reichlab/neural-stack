@@ -75,19 +75,19 @@ for model in models:
     # Write onset bin values
     # Bins go from season week 10 (epiweek 40) to season week 42 (epiweek
     # depends on the number of weeks in first year) and a none bin
-    np.savetxt(os.path.join(model_dir, "onset_wk.np.gz"), df_sub.iloc[:, 14:48].values)
+    np.savetxt(os.path.join(model_dir, "onset_wk.np.gz"), np.exp(df_sub.iloc[:, 14:48].values))
 
     # Write peak week bin values
     # Bins go from season week 10 (epiweek 40) to season week 42
-    np.savetxt(os.path.join(model_dir, "peak_wk.np.gz"), df_sub.iloc[:, 48:81].values)
+    np.savetxt(os.path.join(model_dir, "peak_wk.np.gz"), np.exp(df_sub.iloc[:, 48:81].values))
 
     # Write peak incidence bin values
     # Bins from 0.0 to 13.0 in steps of 0.1
-    np.savetxt(os.path.join(model_dir, "peak.np.gz"), df_sub.iloc[:, 81:212].values)
+    np.savetxt(os.path.join(model_dir, "peak.np.gz"), np.exp(df_sub.iloc[:, 81:212].values))
 
     # Write week ahead prediction bins
     start = 212
     for idx in range(4):
-        np.savetxt(os.path.join(model_dir, f"{idx + 1}.np.gz"), df_sub.iloc[
+        np.savetxt(os.path.join(model_dir, f"{idx + 1}.np.gz"), np.exp(df_sub.iloc[
             :, start + (idx * 131): start + ((idx + 1) * 131)
-        ].values)
+        ].values))
