@@ -134,10 +134,11 @@ def cv_plot(cv_metadata):
 
     f, axes = plt.subplots(rows, cols, figsize=(10, 15))
 
-    for i in range(rows):
-        for j in range(cols):
-            axes[i][j].plot(cv_metadata[(i * cols) + j]["history"].history["loss"])
-            axes[i][j].plot(cv_metadata[(i * cols) + j]["history"].history["val_loss"])
+    for plot_n in range(n):
+        i = plot_n // 2
+        j = plot_n % 2
+        axes[i][j].plot(cv_metadata[plot_n]["history"].history["loss"])
+        axes[i][j].plot(cv_metadata[plot_n]["history"].history["val_loss"])
 
 
 def save_exp_summary(model, cv_rep: pd.DataFrame, final_metadata: Dict, output_file: str):
