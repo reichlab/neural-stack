@@ -4,6 +4,7 @@ Utilities for working with distributions and similar stuff
 
 import keras.backend as K
 import numpy as np
+import pandas as pd
 import losses
 import pymmwr
 from tqdm import tqdm
@@ -132,8 +133,7 @@ def shift_distribution(distributions,
 
 def cv_train_kfold(gen_model, train_model, X, y, k=10):
     """
-    Train the model using KFold cross validation, return a finally trained
-    model on all the data.
+    Train the model using KFold cross validation.
 
     Parameters
     ----------
@@ -159,7 +159,7 @@ def cv_train_kfold(gen_model, train_model, X, y, k=10):
         val_data = (X[val_indices], y[val_indices])
         histories.append(train_model(model, train_data, val_data))
 
-    cv_metadata = [
+    return  [
         {
             "training_loss": history.history["loss"][-1],
             "validation_loss": history.history["val_loss"][-1],
@@ -168,24 +168,10 @@ def cv_train_kfold(gen_model, train_model, X, y, k=10):
         for history in histories
     ]
 
-    mean_losses = {
-        "training_loss": np.mean([it["training_loss"] for it in cv_metadata]),
-        "validation_loss": np.mean([it["validation_loss"] for it in cv_metadata])
-    }
-
-    # Do final training on complete set
-    model = gen_model()
-    train_data = (X, y)
-    val_data = None
-    final_history = train_model(model, train_data, val_data)
-
-    return [model, mean_losses, cv_metadata, final_history]
-
 
 def cv_train_loso(gen_model, train_model, X, y, yi):
     """
-    Train the model using leave-one-season-out cross validation,
-    return a finally trained model on all the data.
+    Train the model using leave-one-season-out cross validation.
 
     Parameters
     ----------
@@ -212,7 +198,7 @@ def cv_train_loso(gen_model, train_model, X, y, yi):
 
     seasons = [epiweek_to_season(i[0]) for i in yi]
     unique_seasons = list(set(seasons))
-    print(f"Total {len(unique_seasons)} found.")
+    print(f"Total {len(unique_seasons)} seasons found.")
 
     histories = []
     for season in tqdm(unique_seasons):
@@ -231,15 +217,16 @@ def cv_train_loso(gen_model, train_model, X, y, yi):
         for history in histories
     ]
 
-    mean_losses = {
-        "training_loss": np.mean([it["training_loss"] for it in cv_metadata]),
-        "validation_loss": np.mean([it["validation_loss"] for it in cv_metadata])
-    }
+    return cv_metadata
 
-    # Do final training on complete set
-    model = gen_model()
-    train_data = (X, y)
-    val_data = None
-    final_history = train_model(model, train_data, val_data)
 
-    return [model, mean_losses, cv_metadata, final_history]
+def cv_report(cv_metadata):
+    """
+    Report the results of cross validation
+    """
+
+    return pd.DataFrame({
+        "n_epochs": [len(it["history"].history["loss"]) for it in cv_metadata],
+        "train_loss": [it["training_loss"] for it in cv_metadata],
+        "val_loss": [it["validation_loss"] for it in cv_metadata]
+    })
