@@ -10,6 +10,7 @@ import pymmwr
 import os
 import matplotlib.pyplot as plt
 from functools import reduce
+from tabulate import tabulate
 from tqdm import tqdm
 from scipy.stats import norm
 from sklearn.model_selection import KFold
@@ -207,7 +208,6 @@ def cv_train_loso(gen_model, train_model, X, y, yi):
 
     seasons = [epiweek_to_season(i[0]) for i in yi]
     unique_seasons = list(set(seasons))
-    print(f"Total {len(unique_seasons)} seasons found.")
 
     histories = []
     for season in tqdm(unique_seasons):
@@ -234,11 +234,15 @@ def cv_report(cv_metadata):
     Report the results of cross validation
     """
 
+    lens = [len(it["history"].history["loss"]) for it in cv_metadata]
+    losses = [it["training_loss"] for it in cv_metadata]
+    val_losses = [it["validation_loss"] for it in cv_metadata]
+
     return pd.DataFrame({
-        "n_epochs": [len(it["history"].history["loss"]) for it in cv_metadata],
-        "train_loss": [it["training_loss"] for it in cv_metadata],
-        "val_loss": [it["validation_loss"] for it in cv_metadata]
-    })
+        "n_epochs": lens + [np.mean(lens)],
+        "train_loss": losses + [np.mean(losses)],
+        "val_loss": val_losses + [np.mean(val_losses)]
+    }, index=["it-" + str(i) for i in range(1, len(cv_metadata) + 1)] + ["mean"])
 
 
 def cv_plot(cv_metadata):
@@ -266,6 +270,7 @@ def mean_ensemble(dists):
 
     return np.mean(dists, axis=0)
 
+
 def prod_ensemble(dists):
     """
     Return prod of dists. Works as product ensemble model.
@@ -274,3 +279,34 @@ def prod_ensemble(dists):
     prod_dist = reduce(np.multiply, dists)
     prod_dist /= prod_dist.sum(axis=1, keepdims=True) + K.epsilon()
     return prod_dist
+
+
+def save_exp_summary(model, cv_metadata, final_metadata, output_file):
+    """
+    Save a summary text for current experiment
+
+    Parameters
+    ----------
+    model : keras.model
+        Keras model
+    cv_metadata : List[Dict]
+        List of cross validation metadata generated from cv_train functions
+    final_metdata : Dist
+        Dict with params related to final training
+    output_file : str
+        Output file name
+    """
+
+    with open(output_file, "w") as fp:
+        fp.write("Model summary\n")
+        fp.write("-------------\n")
+        model.summary(print_fn=lambda line: fp.write(line + "\n"))
+        fp.write("\n\n")
+        fp.write("Cross validation\n")
+        fp.write("----------------\n")
+        fp.write(tabulate(cv_report(cv_metadata)))
+        fp.write("\n\n")
+        fp.write("Final training\n")
+        fp.write("--------------\n")
+        fp.write(f"Epochs: {final_metadata['epochs']}\n")
+        fp.write(f"Loss: {final_metadata['loss']}")

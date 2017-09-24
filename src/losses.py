@@ -6,6 +6,14 @@ import keras.backend as K
 import numpy as np
 
 
+def mean_cat_cross(y_true, y_pred):
+    """
+    Categorical crossentropy mean value
+    """
+
+    return K.categorical_crossentropy(y_true, y_pred).mean().eval()
+
+
 def separate_mdn_params(params, n_mix):
     """
     Separate single network output to 3 mixture components
