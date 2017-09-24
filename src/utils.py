@@ -23,6 +23,24 @@ def ensure_dir(directory):
     return directory
 
 
+def smooth_dists(dists: np.ndarray, window_len: int, window: str):
+    """
+    Smooth given dists
+    """
+
+    if window_len < 3:
+        return x
+    if window == "flat":
+        w = np.ones(window_len)
+    else:
+        w = eval("np." + window + "(window_len)")
+
+    out = np.zeros_like(dists)
+    for i in range(out.shape[0]):
+        out[i] = np.convolve(w / w.sum(), dists[i], mode="same")
+    return out
+
+
 def dist_mean(dist, bins=np.linspace(0, 12.9, 130)):
     """
     Return the mean of distribution using default wili bins
