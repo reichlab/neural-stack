@@ -7,9 +7,18 @@ import numpy as np
 import pandas as pd
 import losses
 import pymmwr
+import os
+import matplotlib.pyplot as plt
+from functools import reduce
 from tqdm import tqdm
 from scipy.stats import norm
 from sklearn.model_selection import KFold
+
+
+def ensure_dir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    return directory
 
 
 def dist_mean(dist, bins=np.linspace(0, 12.9, 130)):
@@ -230,3 +239,38 @@ def cv_report(cv_metadata):
         "train_loss": [it["training_loss"] for it in cv_metadata],
         "val_loss": [it["validation_loss"] for it in cv_metadata]
     })
+
+
+def cv_plot(cv_metadata):
+    """
+    Plot the training histories for cross validation
+    """
+
+    n = len(cv_metadata)
+
+    cols = 2
+    rows = (n // cols) + ((n % 2) * 1)
+
+    f, axes = plt.subplots(rows, cols, figsize=(10, 15))
+
+    for i in range(rows):
+        for j in range(cols):
+            axes[i][j].plot(cv_metadata[(i * cols) + j]["history"].history["loss"])
+            axes[i][j].plot(cv_metadata[(i * cols) + j]["history"].history["val_loss"])
+
+
+def mean_ensemble(dists):
+    """
+    Return mean of dists. Works as mean ensemble model.
+    """
+
+    return np.mean(dists, axis=0)
+
+def prod_ensemble(dists):
+    """
+    Return prod of dists. Works as product ensemble model.
+    """
+
+    prod_dist = reduce(np.multiply, dists)
+    prod_dist /= prod_dist.sum(axis=1, keepdims=True) + K.epsilon()
+    return prod_dist
