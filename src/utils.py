@@ -13,6 +13,7 @@ from functools import reduce
 from tabulate import tabulate
 from tqdm import tqdm
 from scipy.stats import norm
+from typing import Dict
 from sklearn.model_selection import KFold
 
 
@@ -239,7 +240,7 @@ def cv_report(cv_metadata):
     val_losses = [it["validation_loss"] for it in cv_metadata]
 
     return pd.DataFrame({
-        "n_epochs": lens + [np.mean(lens)],
+        "epochs": lens + [np.mean(lens)],
         "train_loss": losses + [np.mean(losses)],
         "val_loss": val_losses + [np.mean(val_losses)]
     }, index=["it-" + str(i) for i in range(1, len(cv_metadata) + 1)] + ["mean"])
@@ -281,20 +282,9 @@ def prod_ensemble(dists):
     return prod_dist
 
 
-def save_exp_summary(model, cv_metadata, final_metadata, output_file):
+def save_exp_summary(model, cv_rep: pd.DataFrame, final_metadata: Dict, output_file: str):
     """
     Save a summary text for current experiment
-
-    Parameters
-    ----------
-    model : keras.model
-        Keras model
-    cv_metadata : List[Dict]
-        List of cross validation metadata generated from cv_train functions
-    final_metdata : Dist
-        Dict with params related to final training
-    output_file : str
-        Output file name
     """
 
     with open(output_file, "w") as fp:
@@ -304,7 +294,7 @@ def save_exp_summary(model, cv_metadata, final_metadata, output_file):
         fp.write("\n\n")
         fp.write("Cross validation\n")
         fp.write("----------------\n")
-        fp.write(tabulate(cv_report(cv_metadata)))
+        fp.write(tabulate(cv_rep))
         fp.write("\n\n")
         fp.write("Final training\n")
         fp.write("--------------\n")
