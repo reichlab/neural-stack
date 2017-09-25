@@ -121,6 +121,16 @@ def get_merged_features(components, feature_functions):
     return np.concatenate(feature_blocks, axis=1)
 
 
+def get_2d_features(components):
+    """
+    Return image like 2d features for input in convolution models.
+    Input is a list of n items of shape (batch_size, bins), output is a matrix
+    of shape (batch_size, bins, n)
+    """
+
+    return np.array(components).transpose([1, 2, 0])
+
+
 def shift_dists(dists,
                 shift_values,
                 bins=np.linspace(0, 12.9, 130)):

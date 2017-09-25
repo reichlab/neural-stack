@@ -9,7 +9,19 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 from tqdm import tqdm
 from typing import Dict
+import pymmwr
 from sklearn.model_selection import KFold
+
+
+def encode_epiweeks_sin(epiweeks):
+    """
+    Sinusoidal encoding of epiweek
+    """
+
+    years, weeks = epiweeks // 100, epiweeks % 100
+    ns = np.array([pymmwr.mmwr_weeks_in_year(y) for y in years])
+    rads = 2 * np.pi * weeks / ns
+    return np.array([np.sin(rads), np.cos(rads)]).T
 
 
 def ensure_dir(directory):
@@ -29,7 +41,7 @@ def cv_train_kfold(gen_model, train_model, X, y, k=10):
     train_model : function
         Function taking in model, train_data, val_data and performing actual
         training. It returns keras training history for the run.
-    X : np.ndarray
+    X : np.ndarray (or a list of these)
         Numpy array representing the model input
     y : np.ndarray
         Numpy array representing the actual output
@@ -42,8 +54,15 @@ def cv_train_kfold(gen_model, train_model, X, y, k=10):
     histories = []
     for train_indices, val_indices in tqdm(kf.split(X)):
         model = gen_model()
-        train_data = (X[train_indices], y[train_indices])
-        val_data = (X[val_indices], y[val_indices])
+
+        if type(X) == list:
+            # Model with multiple input
+            train_data = ([x_sub[train_indices] for x_sub in X], y[train_indices])
+            val_data = ([x_sub[val_indices] for x_sub in X], y[val_indices])
+        else:
+            train_data = (X[train_indices], y[train_indices])
+            val_data = (X[val_indices], y[val_indices])
+
         histories.append(train_model(model, train_data, val_data))
 
     return  [
@@ -67,8 +86,8 @@ def cv_train_loso(gen_model, train_model, X, y, yi):
     train_model : function
         Function taking in model, train_data, val_data and performing actual
         training. It returns keras training history for the run.
-    X : np.ndarray
-        Numpy array representing the model input
+    X : np.ndarray (or list of np.ndarray)
+        Numpy array (or list of those) representing the model input
     y : np.ndarray
         Numpy array representing the actual output
     yi : np.ndarray
@@ -90,8 +109,15 @@ def cv_train_loso(gen_model, train_model, X, y, yi):
     for season in tqdm(unique_seasons):
         model = gen_model()
         train_indices = np.array([i != season for i in seasons])
-        train_data = (X[train_indices], y[train_indices])
-        val_data = (X[~train_indices], y[~train_indices])
+
+        if type(X) == list:
+            # Model with multiple input
+            train_data = ([x_sub[train_indices] for x_sub in X], y[train_indices])
+            val_data = ([x_sub[~train_indices] for x_sub in X], y[~train_indices])
+        else:
+            train_data = (X[train_indices], y[train_indices])
+            val_data = (X[~train_indices], y[~train_indices])
+
         histories.append(train_model(model, train_data, val_data))
 
     cv_metadata = [
