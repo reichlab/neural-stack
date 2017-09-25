@@ -34,7 +34,9 @@ rule separate_ensemble_data:
 # Convert flusight style data directory to component data for this repository
 # Need to clear week 53 rows from season 2014-2015
 # sed -i '/,"53","1",/d' ./2014-2015/*/*.csv
+# sed -i '/,53,1,/d' ./2014-2015/*/*.csv
 # sed -i '/,"53","54",/d' ./2014-2015/*/*.csv
+# sed -i '/,53,54,/d' ./2014-2015/*/*.csv
 rule pull_flusight_data:
     input:
         flusight_dir = "data/external/flusight-data-dir",
