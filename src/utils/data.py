@@ -119,7 +119,7 @@ def filter_common_indices(indices):
 
 def get_week_ahead_training_data(week_ahead, region_identifier, actual_data_loader, component_data_loaders):
     """
-    Return well formed X's and y's for asked week and region
+    Return well formed y, Xs and yi for asked week and region
 
     Parameters
     -----------
@@ -146,10 +146,6 @@ def get_week_ahead_training_data(week_ahead, region_identifier, actual_data_load
     # NOTE: Skipping the last bin
     Xs = []
     for i in range(len(component_idx_data)):
-        Xs.append(
-            # np.exp(component_idx_data[i][1][filter_indices[i + 1]][:, :-1])
-            # NOTE: Flusight style data is already in regular space so no exp needed
-            component_idx_data[i][1][filter_indices[i + 1]][:, :-1]
-        )
+        Xs.append(component_idx_data[i][1][filter_indices[i + 1]][:, :-1])
 
     return y, Xs, actual_idx.as_matrix()[filter_indices[0]]
