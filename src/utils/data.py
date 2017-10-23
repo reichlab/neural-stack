@@ -99,7 +99,7 @@ class ActualDataLoader:
             return [index, wili]
 
 
-def filter_common_indices(*indices):
+def filter_common_indices(indices):
     """
     Return a list of integers for each of the indices such that slicing using
     these lists gives us dataframes matching the epiweek and regions in all the
@@ -139,7 +139,7 @@ def get_week_ahead_training_data(week_ahead, region_identifier, actual_data_load
         for component_data_loader in component_data_loaders
     ]
 
-    filter_indices = filter_common_indices(*[actual_idx, *[c[0] for c in component_idx_data]])
+    filter_indices = filter_common_indices([actual_idx, *[c[0] for c in component_idx_data]])
 
     y = actual_data[filter_indices[0]]
 
