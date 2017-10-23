@@ -169,6 +169,5 @@ def prod_ensemble(dists):
     Return prod of dists. Works as product ensemble model.
     """
 
-    prod_dist = reduce(np.multiply, dists)
-    prod_dist /= prod_dist.sum(axis=1, keepdims=True) + K.epsilon()
-    return prod_dist
+    log_dists = [np.log(dist + K.epsilon()) for dist in dists]
+    return mean_ensemble(log_dists)
