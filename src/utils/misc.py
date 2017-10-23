@@ -13,6 +13,20 @@ import pymmwr
 from sklearn.model_selection import KFold
 
 
+def available_models(data_dir):
+    """
+    Return name of models available as components in data_dir
+    """
+
+    comp_path = os.path.join(data_dir, "processed", "components")
+
+    return [
+        model for model in
+        os.listdir(comp_path)
+        if os.path.isdir(os.path.join(comp_path, model))
+    ]
+
+
 def encode_epiweeks_sin(epiweeks):
     """
     Sinusoidal encoding of epiweek
