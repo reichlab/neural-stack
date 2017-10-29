@@ -20,7 +20,7 @@ def parse_csv(csv_path: Path):
     """
 
     epiweek = int(csv_path.stem)
-    sub = submission.Submission(pd.read_csv(str(csv_path)))
+    sub = submission.Submission(csv=csv_path)
 
     n_regions = len(submission.MAP_REGION)
 
@@ -47,7 +47,7 @@ def parse_csv(csv_path: Path):
             try:
                 matrices[target][idx, :] = sub.get_X(item[0], target)
             except ValueError:
-                print(f"shape {sub.get_X(item[0], target).shape} {target} for region {item[0]} file name : {csv_path}")
+                print(f"Shape error: {sub.get_X(item[0], target).shape} {target} for region {item[0]} file name : {csv_path}")
     return [pd.DataFrame(index), matrices]
 
 def get_csvs(directory: Path):

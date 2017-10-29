@@ -6,6 +6,7 @@ from typing import Dict, List, Any, Union
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 SUB_HEADER = [
     "Location",
@@ -112,7 +113,7 @@ def sub_from_segments(segments: List):
 
     df = pd.concat([segment for segment in segments])
 
-    return Submission(df)
+    return Submission(df=df)
 
 
 class Submission:
@@ -120,12 +121,17 @@ class Submission:
     Class for submission file in long format
     """
 
-    def __init__(self, df) -> None:
+    def __init__(self, df: pd.DataFrame=None, csv: Union[Path, str]=None) -> None:
         """
         Create submission object from df
         """
 
-        self.df = df
+        if csv:
+            self.df = pd.read_csv(csv)
+        elif df:
+            self.df = df
+        else:
+            raise Exception("No argument provided to Submission")
 
     def to_csv(self, file_name) -> None:
         """
