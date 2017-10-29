@@ -2,7 +2,7 @@
 Module to work with submission files
 """
 
-from typing import Dict, List
+from typing import Dict, List, Any, Union
 
 import numpy as np
 import pandas as pd
@@ -49,7 +49,7 @@ def segment_from_X(X: np.ndarray, point_prediction, region: str, target: str) ->
     Create a segment of rows going into submission
     """
 
-    df = {key: [] for key in SUB_HEADER}
+    df = {key: [] for key in SUB_HEADER}  # type: Dict[str, List[Any]]
 
     def _append_row(row):
         df[SUB_HEADER[0]].append(MAP_REGION[row[0]])
@@ -69,7 +69,7 @@ def segment_from_X(X: np.ndarray, point_prediction, region: str, target: str) ->
         _append_row([region, target, "Point", "week", None, None, point_prediction])
 
         bin_starts = list(range(40, 53)) + list(range(1, 21))
-        bin_ends = [i + 1 for i in bin_starts]
+        bin_ends = [i + 1 for i in bin_starts]  # type: List[Union[int, float]]
 
         for idx, x in enumerate(X):
             _append_row([

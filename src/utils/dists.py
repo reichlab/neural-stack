@@ -15,7 +15,7 @@ def smooth_dists(dists: np.ndarray, window_len: int, window: str):
     """
 
     if window_len < 3:
-        return x
+        return dists
     if window == "flat":
         w = np.ones(window_len)
     else:
