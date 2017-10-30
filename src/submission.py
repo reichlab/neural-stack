@@ -176,7 +176,7 @@ class Submission:
             # These are week bins
             def _clear_bin(x):
                 try:
-                    return int(x)
+                    return int(float(x))
                 except ValueError:
                     return np.nan
 
@@ -185,10 +185,9 @@ class Submission:
 
             year_end = max(bins)
             season_end = 20
+            season_weeks = list(range(40, year_end + 1)) + list(range(1, season_end + 1))
 
             def _sort_key(it):
-                season_weeks = list(range(40, year_end + 1)) + list(range(1, season_end + 1))
-
                 # Return onset bin 'none' as last bin
                 if np.isnan(it[1]):
                     return 34
