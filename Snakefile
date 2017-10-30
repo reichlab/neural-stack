@@ -1,4 +1,9 @@
-MODELS = ["kde", "kcde", "sarima"]
+# Snakefile for processes
+
+MODELS = ["kde", "kcde", "sarima",
+          "em_stacking", "equal_weights", "xgb_stacking_reg_w",
+          "xgb_stacking_reg_wui", "xgb_stacking_reg_wu", "xgb_stacking_unregularized"]
+
 COMPONENTS_PATH = "data/processed/components/"
 
 # Collect actual data from delphi API
@@ -13,8 +18,7 @@ rule clear_component_data:
     input: COMPONENTS_PATH
     shell: "cd {input}; rm -r *;"
 
-# Use ensemble-data.csv to create separate prediction files for each
-# model (KDE, KCDE, SARIMA)
+# Use ensemble-data.csv to create separate prediction files for each model
 rule separate_ensemble_data:
     input:
         ensemble_csv = "data/external/ensemble-data.csv.gz",

@@ -28,7 +28,9 @@ assemble_predictions <- function(
   preds_path,
   regions = c("National", paste0("Region", 1:10)),
   seasons = "*",
-  models = c("kde", "kcde", "sarima"),
+  models = c("kde", "kcde", "sarima",
+             "em_stacking", "equal_weights", "xgb_stacking_reg_w",
+             "xgb_stacking_reg_wui", "xgb_stacking_reg_wu", "xgb_stacking_unregularized"),
   prediction_targets = c("onset", "peak_week", "peak_inc", "ph_1_inc", "ph_2_inc", "ph_3_inc", "ph_4_inc"),
   prediction_types = c("log_score", "competition_log_score", "bin_log_probs")
   ) {

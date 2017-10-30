@@ -74,7 +74,7 @@ for model in models:
 
     # Write onset bin values
     # Bins go from season week 10 (epiweek 40) to season week 42 (epiweek
-    # depends on the number of weeks in first year) and a none bin
+    # depends on the number of weeks in first year) and a last 'none' bin
     np.savetxt(os.path.join(model_dir, "onset_wk.np.gz"), np.exp(df_sub.iloc[:, 14:48].values))
 
     # Write peak week bin values
