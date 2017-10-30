@@ -7,7 +7,7 @@ COMPONENTS_PATH = "data/processed/components/"
 # Collect actual data from delphi API
 # See the script to check if the data collected are from the current
 # issue or are from the corresponding past week
-rule actual_data:
+rule get_actual_data:
     output: "data/processed/actual.csv"
     script: "scripts/get-actual-data.py"
 
@@ -34,11 +34,6 @@ rule separate_ensemble_data:
     script: "scripts/separate-ensemble-data.py"
 
 # Convert flusight style data directory to component data for this repository
-# Need to clear week 53 rows from season 2014-2015
-# sed -i '/,"53","1",/d' ./2014-2015/*/*.csv
-# sed -i '/,53,1,/d' ./2014-2015/*/*.csv
-# sed -i '/,"53","54",/d' ./2014-2015/*/*.csv
-# sed -i '/,53,54,/d' ./2014-2015/*/*.csv
 rule pull_flusight_data:
     input:
         flusight_dir = "data/external/flusight-data-dir",
