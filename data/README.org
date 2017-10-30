@@ -22,11 +22,11 @@ tree -L 2 -a
 5 directories, 3 files
 #+end_example
 
-The data pre processing workflow involves putting in the data sources in
-appropriate ~./external~ directory and running corresponding snakemake task from
-the repository root. After processing, the component model data are collected in
-the directory ~./processed/components/~. The data from here is then picked up by
-the notebooks.
+The data pre processing workflow involves putting data files in appropriate
+~./external~ directory and running corresponding snakemake task from the
+repository root. After processing, the component model data are collected in the
+directory ~./processed/components/~. The data from here is then picked up by the
+notebooks.
 
 * ~external~
 
