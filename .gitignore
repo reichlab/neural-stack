@@ -77,3 +77,4 @@ ENV/
 /writeup.tex
 /.Rhistory
 /auto
+/.mypy_cache
