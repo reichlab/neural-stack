@@ -107,7 +107,7 @@ This contains the final processed data which are then used by notebooks. For
 each model, there is a directory inside ~./processed/components/~ containing the
 following files:
 
-#+BEGIN_SRC bash :export both :results output
+#+BEGIN_SRC bash :exports both :results output
 ls -al ./processed/components/CU-BMA
 #+END_SRC
 
@@ -130,7 +130,7 @@ Each ~np.gz~ file is a compressed numpy matrix with predefined number of columns
 for each bin and some number of rows mapped to actual epiweek and region using
 the file ~index.csv~. A sample index file is shown below:
 
-#+BEGIN_SRC bash :export both :results output
+#+BEGIN_SRC bash :exports both :results output
 head ./processed/components/CU-BMA/index.csv
 #+END_SRC
 
@@ -167,14 +167,14 @@ type of prediction they are. A detailed description follows:
 Consistency of these files can be checked by running the following test from the
 root directory:
 
-#+BEGIN_SRC bash :export both
+#+BEGIN_SRC bash :exports both
 pytest ./tests/test_components.py
 #+END_SRC
 
 This directory also contains ~./processed/actual.csv~ which has actual wili data
 as shown below:
 
-#+BEGIN_SRC bash :export both :results output
+#+BEGIN_SRC bash :exports both :results output
 head ./processed/actual.csv
 #+END_SRC
 
@@ -195,6 +195,6 @@ epiweek,region,wili
 The actual data can be downloaded using the [[https://github.com/cmu-delphi/delphi-epidata][delphi-epidata]] api by running the
 following from the repo root:
 
-#+BEGIN_SRC bash :export both
+#+BEGIN_SRC bash :exports both
 snakemake get_actual_data
 #+END_SRC
