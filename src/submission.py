@@ -1,11 +1,12 @@
 """
-Module to work with submission files
+Module to work with submission files in CDC format
 """
 
-from typing import Dict, List, Any, Union
+from typing import Dict, List, Any, Union, Tuple
 
 import numpy as np
 import pandas as pd
+from functools import cmp_to_key
 from pathlib import Path
 
 SUB_HEADER = [
@@ -123,7 +124,17 @@ class Submission:
 
     def __init__(self, df: pd.DataFrame=None, csv: Union[Path, str]=None) -> None:
         """
-        Create submission object from df
+        Create submission object from df. The df is something like this
+
+        Location,Target,Type,Unit,Bin_start_incl,Bin_end_notincl,Value
+        US National,1 wk ahead,Point,percent,NA,NA,1.7
+        US National,2 wk ahead,Point,percent,NA,NA,2.2
+        US National,3 wk ahead,Point,percent,NA,NA,2.5
+        US National,4 wk ahead,Point,percent,NA,NA,2.8
+
+        Ordering is not gauranteed in the df itself. While returning an asked
+        subset (get_X), we sort the rows according to the ordering of
+        Bin_start_incl
         """
 
         if csv:
@@ -140,14 +151,57 @@ class Submission:
 
         self.df.to_csv(file_name, na_rep="NA", index=False)
 
-    def get_X(self, region: str, target: str) -> np.ndarray:
+    def get_X(self, region: str, target: str) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Return X for asked region and target
+        Return X for asked region and target with bin ordering.
+        Ordering is simple for percent values, we go like [0.0, 0.1, ..., 13.0]
+
+        For weeks, we need to go from 40 to 52/53 and then from 1
+        to 20. Furthermore, we only return 33 week bins. This means we skip
+        week 20 in a season with 53 weeks. In case of onset, we return 1 more
+        bin (the last one) to account for the no onset case.
         """
 
-        values = self.df[
+        subset = self.df[
             (self.df["Location"] == MAP_REGION[region]) & \
-            (self.df["Target"] == MAP_TARGET[target])
-        ]["Value"].as_matrix()[1:] # Skip point predictions
+            (self.df["Target"] == MAP_TARGET[target]) & \
+            (self.df["Type"] == "Bin")
+        ][["Bin_start_incl", "Value"]]
 
-        return values
+        if subset.shape[0] == 131:
+            # These are percent bins
+            mat = subset.apply(pd.to_numeric).sort_values(by="Bin_start_incl")[["Value", "Bin_start_incl"]].as_matrix()
+            return (mat[:, 0], mat[:, 1])
+        else:
+            # These are week bins
+            def _clear_bin(x):
+                try:
+                    return int(x)
+                except ValueError:
+                    return np.nan
+
+            probs = [float(p) for p in subset["Value"].tolist()]
+            bins = [_clear_bin(bs) for bs in subset["Bin_start_incl"].tolist()]
+
+            year_end = max(bins)
+            season_end = 20
+
+            def _sort_key(it):
+                season_weeks = list(range(40, year_end + 1)) + list(range(1, season_end + 1))
+
+                # Return onset bin 'none' as last bin
+                if np.isnan(it[1]):
+                    return 34
+                else:
+                    return season_weeks.index(it[1])
+
+            sorted_pairs = sorted(zip(probs, bins), key=_sort_key)
+
+            # Skip last probability bin if we are in 53 week season
+            if year_end == 53:
+                if target == "onset_wk":
+                    sorted_pairs.pop(len(sorted_pairs) - 2)
+                else:
+                    sorted_pairs.pop()
+
+            return ([i[0] for i in sorted_pairs], [i[1] for i in sorted_pairs])

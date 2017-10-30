@@ -45,9 +45,10 @@ def parse_csv(csv_path: Path):
             # NOTE: The data from ensemble loader uses log values instead of normal
             # Here we are using normal values directly
             try:
-                matrices[target][idx, :] = sub.get_X(item[0], target)
+                (X, bin_starts) = sub.get_X(item[0], target)
+                matrices[target][idx, :] = X
             except ValueError:
-                print(f"Shape error: {sub.get_X(item[0], target).shape} {target} for region {item[0]} file name : {csv_path}")
+                print(f"Shape error: {X.shape} {target} for region {item[0]} file name : {csv_path}")
     return [pd.DataFrame(index), matrices]
 
 def get_csvs(directory: Path):
