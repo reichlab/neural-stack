@@ -25,7 +25,7 @@ tree -L 2 -a
 The data pre processing workflow involves putting data files in appropriate
 ~./external~ directory and running corresponding snakemake task from the
 repository root. After processing, the component model data are collected in the
-directory ~./processed/components/~. The data from here is then picked up by the
+directory ~./processed/components/~. The data from here are then picked up by the
 notebooks.
 
 * ~external~
@@ -35,16 +35,16 @@ sources:
 
 ** ~adaptively-weighted-ensemble~ 
 
-This keeps ~.rds~ outputs from [[https://github.com/reichlab/adaptively-weighted-ensemble/][adaptively-weighted-ensemble]] repository. Running
-the following snakemake task from the root of this repository will pull in
-required data from this directory in a single ~./external/ensemble-data.csv.gz~.
+This contains ~.rds~ outputs from [[https://github.com/reichlab/adaptively-weighted-ensemble/][adaptively-weighted-ensemble]] repository. Running
+the following snakemake task from the repo root will pull in required data from
+this directory in a single ~./external/ensemble-data.csv.gz~ (this is version
+controlled).
 
 #+BEGIN_SRC bash
 snakemake assemble_ensemble_data
 #+END_SRC
 
-The generated csv.gz file is version controlled in the ~./external/~ directory.
-After generating the csv.gz, running the following command generate separate
+After generating the csv.gz, running the following command generates processed
 model prediction files in ~./processed/components/~.
 
 #+BEGIN_SRC bash
