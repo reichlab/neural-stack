@@ -1,8 +1,6 @@
 # Snakefile for processes
 
-MODELS = ["kde", "kcde", "sarima",
-          "em_stacking", "equal_weights", "xgb_stacking_reg_w",
-          "xgb_stacking_reg_wui", "xgb_stacking_reg_wu", "xgb_stacking_unregularized"]
+MODELS = ["kde", "kcde", "sarima"]
 
 COMPONENTS_PATH = "data/processed/components/"
 
