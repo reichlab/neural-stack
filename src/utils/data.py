@@ -108,13 +108,75 @@ def filter_common_indices(indices):
 
     merge_on = ["epiweek", "region"]
 
-    assert len(indices) > 1, "At least two indices needed"
+    if len(indices) == 1:
+        return [indices[0].index.values]
+
     merged = pd.merge(indices[0].reset_index(), indices[1].reset_index(), on=merge_on)
     for i in range(2, len(indices)):
         merged = pd.merge(merged, indices[i].reset_index(), on=merge_on)
 
     # Return just the numbers
     return list(merged.drop(merge_on, axis=1).values.T)
+
+
+def epiweek_to_season(epiweek: int) -> int:
+    """
+    Return first year of the season the epiweek belongs to
+    """
+
+    week, year = epiweek // 100, epiweek % 100
+
+    if week <= 30:
+        return year - 1
+    else:
+        return year
+
+
+def get_seasonal_training_data(target, region_identifier, actual_data_loader, component_data_loaders):
+    """
+    Return well formed y, Xs and yi for asked week and region
+    """
+
+    actual_idx, actual_data = actual_data_loader.get(region_identifier=region_identifier)
+    component_idx_data = [
+        component_data_loader.get(target, region_identifier=region_identifier)
+        for component_data_loader in component_data_loaders
+    ]
+
+    filter_indices = filter_common_indices([actual_idx, *[c[0] for c in component_idx_data]])
+
+    true_df = actual_idx.copy().iloc[filter_indices[0], :]
+    true_df["wili"] = actual_data[filter_indices[0]]
+    true_df["season"] = true_df.apply(lambda row: epiweek_to_season(row["epiweek"]), axis=1)
+    true_df["order"] = np.arange(0, true_df.shape[0])
+
+    # Calculate peak week and value maps
+    peaks_df = true_df.sort_values("wili", ascending=False).drop_duplicates(["season", "region"])
+    peaks_df = pd.merge_ordered(true_df, peaks_df, on=["season", "region"], suffixes=("", "_x"))
+    peaks_df = peaks_df.rename(columns={"epiweek_x": "peak_wk", "wili_x": "peak"})
+    peaks_df = peaks_df.sort_values("order")
+
+    # TODO
+    # - Filter out seasons with onset None. Might need to see how much data it removes
+    y = []
+    if target == "peak":
+        y = list(peaks_df["peak"].values)
+    elif target == "peak_wk":
+        y = list(peaks_df["peak_wk"].values)
+    elif target == "onset_wk":
+        raise Exception("Onset week target not implemented")
+    else:
+        raise Exception(f"Unknown target {target}")
+
+    # NOTE:
+    # Expecting 131 bins for peak
+    # 34 for onset_wk (one for onset None)
+    # 33 for peak_wk
+    Xs = []
+    for i in range(len(component_idx_data)):
+        Xs.append(component_idx_data[i][1][filter_indices[i + 1]])
+
+    return y, Xs, peaks_df[["epiweek", "region"]].as_matrix()[filter_indices[0]]
 
 
 def get_week_ahead_training_data(week_ahead, region_identifier, actual_data_loader, component_data_loaders):
