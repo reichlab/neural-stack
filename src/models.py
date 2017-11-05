@@ -26,7 +26,7 @@ def dem(mat, weights=None, epsilon=None):
         Tolerance value
     """
 
-    if not weights:
+    if weights is None:
         weights = np.ones(mat.shape[1]) / mat.shape[1]
 
     if not epsilon:
@@ -34,7 +34,6 @@ def dem(mat, weights=None, epsilon=None):
 
     w_mat = mat * weights
     marginals = np.sum(w_mat, axis=1)
-
     log_marginal = np.mean(np.log(marginals))
 
     if np.isneginf(log_marginal):
@@ -43,14 +42,14 @@ def dem(mat, weights=None, epsilon=None):
         while True:
             prev_log_marginal = log_marginal
             weights = np.mean(w_mat.T / marginals, axis=1)
-            weighted_mat = mat * weights
-            marginals = np.sum(mat, axis=1)
+            w_mat = mat * weights
+            marginals = np.sum(w_mat, axis=1)
             log_marginal = np.mean(np.log(marginals))
 
-            if log_marginal < prev_log_marginal:
+            if log_marginal + epsilon < prev_log_marginal:
                 raise ValueError("Log marginal less than prev_log_marginal")
             marginal_diff = log_marginal - prev_log_marginal
-            if (marginal_diff <= epsilon) or (marginal_diff / -log_marginal) <= epsilon:
+            if (marginal_diff <= epsilon) or ((marginal_diff / -log_marginal) <= epsilon):
                 break
     return weights
 
