@@ -137,7 +137,7 @@ def epiweek_to_season(epiweek: int) -> int:
     Return first year of the season the epiweek belongs to
     """
 
-    week, year = epiweek // 100, epiweek % 100
+    year, week = epiweek // 100, epiweek % 100
 
     if week <= 30:
         return year - 1
