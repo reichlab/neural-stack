@@ -7,7 +7,7 @@ from datetime import datetime
 import pandas as pd
 import pymmwr
 
-
+BASELINE_URL = "https://raw.githubusercontent.com/cdcepi/FluSight-forecasts/master/wILI_Baseline.csv"
 current_epiweek = pymmwr.date_to_mmwr_week()
 
 # Range of epiweeks to gather data for
@@ -38,4 +38,21 @@ for region in regions:
         df["wili"].append(data["wili"])
 
 # Write to file
-pd.DataFrame(df).to_csv(snakemake.output[0], index=False)
+pd.DataFrame(df).to_csv(snakemake.output.actual_csv, index=False)
+
+# Save baseline information
+bdf = pd.read_csv(BASELINE_URL, index_col=0)
+
+def rename_region(region):
+    if region == "National":
+        return "nat"
+    else:
+        return f"hhs{region[6:]}"
+
+def rename_season(season):
+    return season.replace("/", "-")
+
+bdf.index = bdf.index.map(rename_region)
+bdf.columns = bdf.columns.map(rename_season)
+
+bdf.to_csv(snakemake.output.baseline_csv, index=True)

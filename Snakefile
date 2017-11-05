@@ -8,7 +8,9 @@ COMPONENTS_PATH = "data/processed/components/"
 # See the script to check if the data collected are from the current
 # issue or are from the corresponding past week
 rule get_actual_data:
-    output: "data/processed/actual.csv"
+    output:
+        actual_csv = "data/processed/actual.csv",
+        baseline_csv = "data/processed/baseline.csv"
     script: "scripts/get-actual-data.py"
 
 # Clear component model data
