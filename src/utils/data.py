@@ -61,7 +61,7 @@ class ActualDataLoader:
         self.baseline = pd.read_csv(os.path.join(self.root_path, "baseline.csv"), index_col=0)
         self.index = self._df[["epiweek", "region"]]
 
-        
+
     def get_baseline(self, season: int, region_identifier: str) -> float:
         """
         Return baseline for given season year (first year of season) and region
@@ -165,7 +165,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
 
     # Calculate peak week and value maps
     peaks_df = true_df.sort_values("wili", ascending=False).drop_duplicates(["season", "region"])
-    peaks_df = pd.merge_ordered(true_df, peaks_df, on=["season", "region"], suffixes=("", "_x"))
+    peaks_df = pd.merge(true_df, peaks_df, on=["season", "region"], suffixes=("", "_x"))
     peaks_df = peaks_df.rename(columns={"epiweek_x": "peak_wk", "wili_x": "peak"})
     peaks_df = peaks_df.sort_values("order")
 
