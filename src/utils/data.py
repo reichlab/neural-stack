@@ -58,7 +58,20 @@ class ActualDataLoader:
     def __init__(self, data_dir: str) -> None:
         self.root_path = os.path.join(data_dir, "processed")
         self._df = pd.read_csv(os.path.join(self.root_path, "actual.csv"))
+        self.baseline = pd.read_csv(os.path.join(self.root_path, "baseline.csv"), index_col=0)
         self.index = self._df[["epiweek", "region"]]
+
+        
+    def get_baseline(self, season: int, region_identifier: str) -> float:
+        """
+        Return baseline for given season year (first year of season) and region
+        """
+
+        try:
+            return self.baseline.loc[region_identifier, f"{season}-{season+1}"]
+        except KeyError:
+            raise KeyError(f"Season starting with {season} not found in baseline.csv")
+
 
     def get(self, week_shift=None, region_identifier=None):
         """

@@ -78,3 +78,4 @@ ENV/
 /.Rhistory
 /auto
 /.mypy_cache
+/scratch.org
