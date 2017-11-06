@@ -43,16 +43,19 @@ pd.DataFrame(df).to_csv(snakemake.output.actual_csv, index=False)
 # Save baseline information
 bdf = pd.read_csv(BASELINE_URL, index_col=0)
 
-def rename_region(region):
+def rename_region(region: str) -> str:
     if region == "National":
         return "nat"
     else:
         return f"hhs{region[6:]}"
 
-def rename_season(season):
-    return season.replace("/", "-")
+def rename_season(season: str) -> int:
+    return int(season.split("/")[0])
 
 bdf.index = bdf.index.map(rename_region)
 bdf.columns = bdf.columns.map(rename_season)
+seasons = list(bdf.columns)
+bdf = bdf.reset_index().rename(columns={"index": "region"})
+bdf = bdf.melt(id_vars=["region"], value_vars=seasons, var_name="season", value_name="baseline")
 
-bdf.to_csv(snakemake.output.baseline_csv, index=True)
+bdf.to_csv(snakemake.output.baseline_csv, index=False)

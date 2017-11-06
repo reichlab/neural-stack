@@ -67,10 +67,9 @@ class ActualDataLoader:
         Return baseline for given season year (first year of season) and region
         """
 
-        try:
-            return self.baseline.loc[region_identifier, f"{season}-{season+1}"]
-        except KeyError:
-            raise KeyError(f"Season starting with {season} not found in baseline.csv")
+        return self.baseline[
+            (self.baseline["region"] == region_identifier) & (self.baseline["season"] == season)
+        ]["baseline"][0]
 
 
     def get(self, week_shift=None, region_identifier=None):
