@@ -58,4 +58,18 @@ seasons = list(bdf.columns)
 bdf = bdf.reset_index().rename(columns={"index": "region"})
 bdf = bdf.melt(id_vars=["region"], value_vars=seasons, var_name="season", value_name="baseline")
 
+def change_season(subset, new_year):
+    """
+    Return a copy of subset with season changed
+    """
+
+    df = subset.copy()
+    df["season"] = new_year
+    return df
+
+# Use baseline of 2007 for seasons before it
+past_seasons = range(1990, 2007)
+copies = [change_season(bdf[bdf["season"] == 2007], year) for year in past_seasons]
+bdf = pd.concat([*copies, bdf], ignore_index=True)
+
 bdf.to_csv(snakemake.output.baseline_csv, index=False)
