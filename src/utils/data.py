@@ -58,19 +58,8 @@ class ActualDataLoader:
     def __init__(self, data_dir: str) -> None:
         self.root_path = os.path.join(data_dir, "processed")
         self._df = pd.read_csv(os.path.join(self.root_path, "actual.csv"))
-        self.baseline = pd.read_csv(os.path.join(self.root_path, "baseline.csv"), index_col=0)
+        self.baseline = pd.read_csv(os.path.join(self.root_path, "baseline.csv"))
         self.index = self._df[["epiweek", "region"]]
-
-
-    def get_baseline(self, season: int, region_identifier: str) -> float:
-        """
-        Return baseline for given season year (first year of season) and region
-        """
-
-        return self.baseline[
-            (self.baseline["region"] == region_identifier) & (self.baseline["season"] == season)
-        ]["baseline"][0]
-
 
     def get(self, week_shift=None, region_identifier=None):
         """
@@ -167,6 +156,8 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     peaks_df = true_df.merge(peaks_df, on=["season", "region"], suffixes=("", "_x"))
     peaks_df = peaks_df.rename(columns={"epiweek_x": "peak_wk", "wili_x": "peak"})
     peaks_df = peaks_df.sort_values("order")
+    peaks_df = peaks_df.drop("order_x", axis=1)
+    peaks_df = peaks_df.merge(adl.baseline, on=["season", "region"])
 
     # TODO
     # - Filter out seasons with onset None. Might need to see how much data it removes
