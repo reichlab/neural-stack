@@ -157,7 +157,17 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     peaks_df = peaks_df.rename(columns={"epiweek_x": "peak_wk", "wili_x": "peak"})
     peaks_df = peaks_df.sort_values("order")
     peaks_df = peaks_df.drop("order_x", axis=1)
-    peaks_df = peaks_df.merge(adl.baseline, on=["season", "region"])
+    peaks_df = peaks_df.merge(actual_data_loader.baseline, on=["season", "region"])
+
+    def _get_onset_wk(subset):
+        """
+        Return onset week for region, season chunk
+        """
+
+        try:
+            return subset[(subset["wili"] - subset["baseline"]) > 0].sort_values("epiweek").iloc[0, :]["epiweek"]
+        except IndexError:
+            return None
 
     # TODO
     # - Filter out seasons with onset None. Might need to see how much data it removes
@@ -167,7 +177,21 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     elif target == "peak_wk":
         y = list(peaks_df["peak_wk"].values)
     elif target == "onset_wk":
-        raise Exception("Onset week target not implemented")
+        onset_wks = {
+            "region": [],
+            "season": [],
+            "onset_wk": []
+        }
+        for name, group in peaks_df.groupby(["season", "region"]):
+            season, region = name
+            onset_wks["season"].append(season)
+            onset_wks["region"].append(region)
+            onset_wks["onset_wk"].append(_get_onset_wk(group))
+        onset_wks = pd.DataFrame(onset_wks)
+
+        onset_output = peaks_df.merge(onset_wks, on=["season", "region"]).sort_values("order")["onset_wk"].values
+        # Map to a list of [int, None]
+        y = [None if np.isnan(i) else int(i) for i in onset_output]
     else:
         raise Exception(f"Unknown target {target}")
 
