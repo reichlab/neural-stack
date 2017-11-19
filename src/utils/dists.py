@@ -179,3 +179,31 @@ def prod_ensemble(dists):
 
     log_dists = [np.log(dist + K.epsilon()) for dist in dists]
     return mean_ensemble(log_dists)
+
+
+def score_predictions(Xs: List[np.ndarray], y: np.ndarray) -> np.ndarray:
+    """
+    Return score matrix for the predictions
+    """
+
+    if Xs[0].shape[1] == 130:
+        # This is weekly target
+        # NOTE: We are skipping last bin [13.0, 100.0]
+        product = np.stack([
+            np.multiply(actual_to_one_hot(y), X).sum(axis=1) for X in Xs
+        ], axis=1)
+    elif Xs[0].shape[1] == 34:
+        # This is onset week target
+        product = np.stack([
+            np.multiply(actual_to_one_hot(y, bins=BINS["onset_wk"]), X).sum(axis=1) for X in Xs
+        ], axis=1)
+    elif Xs[0].shape[1] == 33:
+        # This is peak week target
+        product = np.stack([
+            np.multiply(actual_to_one_hot(y, bins=BINS["peak_wk"]), X).sum(axis=1) for X in Xs
+        ], axis=1)
+    else:
+        raise Exception(f"Target type not understood. Shape given {Xs[0].shape}")
+
+    # TODO: Check if this is right
+    return np.log(product)
