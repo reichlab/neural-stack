@@ -203,7 +203,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     for i in range(len(component_idx_data)):
         Xs.append(component_idx_data[i][1][filter_indices[i + 1]])
 
-    return y, Xs, peaks_df[["epiweek", "region"]].as_matrix()[filter_indices[0]]
+    return y, Xs, peaks_df[["epiweek", "region"]].as_matrix()
 
 
 def get_week_ahead_training_data(week_ahead, region_identifier, actual_data_loader, component_data_loaders):
