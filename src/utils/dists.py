@@ -205,5 +205,4 @@ def score_predictions(Xs: List[np.ndarray], y: np.ndarray) -> np.ndarray:
     else:
         raise Exception(f"Target type not understood. Shape given {Xs[0].shape}")
 
-    # TODO: Check if this is right
     return np.log(product)
