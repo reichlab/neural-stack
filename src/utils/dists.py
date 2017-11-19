@@ -102,9 +102,9 @@ def actual_to_one_hot(wili, bins=BINS["wili"]):
 
     y = np.zeros((wili.shape[0], bins.shape[0]))
 
+    indices = np.digitize(wili, bins, right=True)
     for i in range(len(wili)):
-        hot_idx = np.sum(wili[i] >= bins) - 1
-        y[i, hot_idx] = 1
+        y[i, indices[i]] = 1
 
     return y
 
