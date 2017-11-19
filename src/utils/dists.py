@@ -5,8 +5,16 @@ Utilities for working with distributions
 import numpy as np
 import keras.backend as K
 import losses
+from typing import List
 from functools import reduce
 from scipy.stats import norm
+
+
+BINS = {
+    "wili": np.linspace(0, 12.9, 130),
+    "peak_wk": np.arange(0, 33),
+    "onset_wk": np.arange(0, 34)
+}
 
 
 def smooth_dists(dists: np.ndarray, window_len: int, window: str):
@@ -27,7 +35,7 @@ def smooth_dists(dists: np.ndarray, window_len: int, window: str):
     return out
 
 
-def dist_mean(dist, bins=np.linspace(0, 12.9, 130)):
+def dist_mean(dist, bins=BINS["wili"]):
     """
     Return the mean of distribution using default wili bins
     (skipping bin 13-100)
@@ -36,7 +44,7 @@ def dist_mean(dist, bins=np.linspace(0, 12.9, 130)):
     return np.sum(bins * dist)
 
 
-def dist_max(dist, bins=np.linspace(0, 12.9, 130)):
+def dist_max(dist, bins=BINS["wili"]):
     """
     Return value for max bin
     """
@@ -44,7 +52,7 @@ def dist_max(dist, bins=np.linspace(0, 12.9, 130)):
     return bins[np.argmax(dist)]
 
 
-def dist_std(dist, bins=np.linspace(0, 12.9, 130)):
+def dist_std(dist, bins=BINS["wili"]):
     """
     Return standard deviation
     """
@@ -54,11 +62,11 @@ def dist_std(dist, bins=np.linspace(0, 12.9, 130)):
     return np.sqrt(var)
 
 
-def dist_median(dist, bins=np.linspace(0, 12.9, 130)):
+def dist_median(dist, bins=BINS["wili"]):
     return np.max((np.cumsum(dist) < 0.5) * bins)
 
 
-def dist_quartiles(dist, bins=np.linspace(0, 12.9, 130)):
+def dist_quartiles(dist, bins=BINS["wili"]):
     """
     Return quartiles division points
     """
@@ -67,7 +75,7 @@ def dist_quartiles(dist, bins=np.linspace(0, 12.9, 130)):
         [np.max((np.cumsum(dist) < i) * bins) for i in [0.25, 0.5, 0.75]])
 
 
-def mdn_params_to_dists(params, bins=np.linspace(0, 12.9, 130)):
+def mdn_params_to_dists(params, bins=BINS["wili"]):
     """
     Convert parameters from mdn to distributions
     """
@@ -87,7 +95,7 @@ def mdn_params_to_dists(params, bins=np.linspace(0, 12.9, 130)):
     return dists
 
 
-def wili_to_dists(wili, bins=np.linspace(0, 12.9, 130)):
+def actual_to_one_hot(wili, bins=BINS["wili"]):
     """
     Wili values to one hot encoded bins
     """
@@ -133,7 +141,7 @@ def get_2d_features(components):
 
 def shift_dists(dists,
                 shift_values,
-                bins=np.linspace(0, 12.9, 130)):
+                bins=BINS["wili"]):
     """
     Shift the distributions by a value and renormalize to make it sum to one
     """
