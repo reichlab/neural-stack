@@ -193,7 +193,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     # - Filter out seasons with onset None. Might need to see how much data it removes
     y = []
     if target == "peak":
-        y = list(peaks_df["peak"].values)
+        y = peaks_df["peak"].values
     elif target == "peak_wk":
         y = [epiweek_to_model_week(ew) for ew in peaks_df["peak_wk"].values]
     elif target == "onset_wk":
@@ -220,7 +220,11 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     # 33 for peak_wk
     Xs = []
     for i in range(len(component_idx_data)):
-        Xs.append(component_idx_data[i][1][filter_indices[i + 1]])
+        if target == "peak":
+            # Skip last bin [13.0, 100]
+            Xs.append(component_idx_data[i][1][filter_indices[i + 1]][:, :-1])
+        else:
+            Xs.append(component_idx_data[i][1][filter_indices[i + 1]])
 
     return y, Xs, peaks_df[["epiweek", "region"]].as_matrix()
 
