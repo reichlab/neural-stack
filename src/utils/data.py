@@ -195,7 +195,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     if target == "peak":
         y = peaks_df["peak"].values
     elif target == "peak_wk":
-        y = [epiweek_to_model_week(ew) for ew in peaks_df["peak_wk"].values]
+        y = np.array([epiweek_to_model_week(ew) for ew in peaks_df["peak_wk"].values])
     elif target == "onset_wk":
         onset_wks = {
             "region": [],
@@ -210,7 +210,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
         onset_wks = pd.DataFrame(onset_wks)
 
         onset_output = peaks_df.merge(onset_wks, on=["season", "region"]).sort_values("order")["onset_wk"].values
-        y = [epiweek_to_model_week(ew) for ew in onset_output]
+        y = np.array([epiweek_to_model_week(ew) for ew in onset_output])
     else:
         raise Exception(f"Unknown target {target}")
 
