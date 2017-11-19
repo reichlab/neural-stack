@@ -133,6 +133,26 @@ def epiweek_to_season(epiweek: int) -> int:
         return year
 
 
+def epiweek_to_model_week(epiweek: int) -> int:
+    """
+    Convert epiweek to model week. Model week starts from 0 (epiweek 40)
+    to 32 (epiweek 20). Additionally 33 means no onset.
+    """
+
+    if np.isnan(epiweek):
+        return 33
+    else:
+        epiweek = int(epiweek)
+        year, week = epiweek // 100, epiweek % 100
+        if week in range(40, 54):
+            return week - 40
+        elif week in range(1, 21):
+            season = epiweek_to_season(epiweek)
+            return week + pymmwr.mmwr_weeks_in_year(season) - 40
+        else:
+            raise Exception("Unknown week range provided")
+
+
 def get_seasonal_training_data(target, region_identifier, actual_data_loader, component_data_loaders):
     """
     Return well formed y, Xs and yi for asked week and region
@@ -175,7 +195,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     if target == "peak":
         y = list(peaks_df["peak"].values)
     elif target == "peak_wk":
-        y = list(peaks_df["peak_wk"].values)
+        y = [epiweek_to_model_week(ew) for ew in peaks_df["peak_wk"].values]
     elif target == "onset_wk":
         onset_wks = {
             "region": [],
@@ -190,8 +210,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
         onset_wks = pd.DataFrame(onset_wks)
 
         onset_output = peaks_df.merge(onset_wks, on=["season", "region"]).sort_values("order")["onset_wk"].values
-        # Map to a list of [int, None]
-        y = [None if np.isnan(i) else int(i) for i in onset_output]
+        y = [epiweek_to_model_week(ew) for ew in onset_output]
     else:
         raise Exception(f"Unknown target {target}")
 
