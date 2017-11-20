@@ -2,6 +2,8 @@
 Pull in flusight data to this repo component models
 """
 
+import sys
+sys.path.append("./src")
 
 import gzip
 import numpy as np
