@@ -1,3 +1,6 @@
 [submodule "data/external/cdc-flusight-ensemble"]
 	path = data/external/cdc-flusight-ensemble
 	url = git@github.com:FlusightNetwork/cdc-flusight-ensemble
+[submodule "data/external/adaptively-weighted-ensemble"]
+	path = data/external/adaptively-weighted-ensemble
+	url = git@github.com:reichlab/adaptively-weighted-ensemble
