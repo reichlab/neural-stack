@@ -1,0 +1,15 @@
+# Config for specifying experiment information
+
+# There are two possible experiments
+# 1. "collaborative", with 21 component models from
+#    https://github.com/FluSightNetwork/cdc-flusight-ensemble and 7 seasons
+#    2010/2011 - 2016/2017 (4 training and 3 testing)
+# 2. "lab", with 3 component models from
+#    https://github.com/reichlab/adaptively-weighted-ensemble and 19 seasons
+#    1997/1998 - 2015/2016 (14 training and 5 testing)
+EXP_NAME: "collaborative"
+
+# This is the epiweek point where we split the training and testing set
+TEST_SPLIT_THRESH:
+  collaborative: 201443
+  lab: 201143
