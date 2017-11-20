@@ -3,6 +3,7 @@ Utilities for working with distributions
 """
 
 import numpy as np
+import pandas as pd
 import keras.backend as K
 import losses
 from typing import List
@@ -164,12 +165,20 @@ def shift_dists(dists,
     return output
 
 
+def weighted_ensemble(dists: List[np.ndarray], weights: np.ndarray) -> np.ndarray:
+    """
+    Return weighted ensemble
+    """
+
+    return np.sum([d * w for d, w in zip(dists, weights)], axis=0)
+
+
 def mean_ensemble(dists):
     """
     Return mean of dists. Works as mean ensemble model.
     """
 
-    return np.mean(dists, axis=0)
+    return weighted_ensemble(dists, np.ones(len(dists)) / len(dists))
 
 
 def prod_ensemble(dists):
