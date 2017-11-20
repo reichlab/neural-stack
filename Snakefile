@@ -11,7 +11,7 @@ rule get_actual_data:
     output:
         actual_csv = "data/processed/actual.csv",
         baseline_csv = "data/processed/baseline.csv"
-    script: "scripts/get-actual-data.py"
+    script: "scripts/processing/get-actual-data.py"
 
 # Clear component model data
 rule clear_component_data:
@@ -33,17 +33,17 @@ rule separate_ensemble_data:
         wk_2 = expand(COMPONENTS_PATH + "{model}/2.np.gz", model=MODELS),
         wk_3 = expand(COMPONENTS_PATH + "{model}/3.np.gz", model=MODELS),
         wk_4 = expand(COMPONENTS_PATH + "{model}/4.np.gz", model=MODELS)
-    script: "scripts/separate-ensemble-data.py"
+    script: "scripts/processing/separate-ensemble-data.py"
 
 # Convert flusight style data directory to component data for this repository
 rule pull_flusight_data:
     input:
         flusight_dir = "data/external/flusight-data-dir",
         out_dir = COMPONENTS_PATH
-    script: "scripts/pull-flusight-data.py"
+    script: "scripts/processing/pull-flusight-data.py"
 
 # Convert adaptively-weighted-ensemble data files to single ensemble-data.csv.gz
 rule assemble_ensemble_data:
     input: "data/external/adaptively-weighted-ensemble/"
     output: "data/external/ensemble-data.csv.gz"
-    script: "scripts/assemble-ensemble-data.R"
+    script: "scripts/processing/assemble-ensemble-data.R"
