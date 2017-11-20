@@ -178,7 +178,7 @@ def prod_ensemble(dists):
     """
 
     log_dists = [np.log(dist + K.epsilon()) for dist in dists]
-    return mean_ensemble(log_dists)
+    return np.exp(mean_ensemble(log_dists))
 
 
 def score_predictions(Xs: List[np.ndarray], y: np.ndarray) -> np.ndarray:
