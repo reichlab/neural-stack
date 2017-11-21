@@ -28,8 +28,6 @@ TARGETS = [udata.Target(t) for t in [1, 2, 3, 4, "peak", "peak_wk", "onset_wk"]]
 
 # Entry point
 for target in tqdm(TARGETS):
-    y, Xs, yi = target.get_testing_data(ACTUAL_DL, COMPONENTS, None, TEST_SPLIT_THRESH)
-
     output_dir = u.ensure_dir(f"./results/{EXP_NAME}/{target.name}")
 
     for idx, cmp in enumerate(COMPONENTS):
@@ -38,18 +36,9 @@ for target in tqdm(TARGETS):
             "score": []
         }
         for region in REGIONS:
-            if region is not None:
-                region_indices = yi[:, 1] == region
-                y_sub = y[region_indices]
-                X_sub = Xs[idx][region_indices]
-                yi_sub = yi[region_indices]
-            else:
-                y_sub = y
-                X_sub = Xs[idx]
-                yi_sub = yi
-
-            y_one_hot = udists.actual_to_one_hot(y_sub, bins=target.bins)
-            output = X_sub
+            y, Xs, yi = target.get_testing_data(ACTUAL_DL, COMPONENTS, region, TEST_SPLIT_THRESH)
+            y_one_hot = udists.actual_to_one_hot(y, bins=target.bins)
+            output = Xs[idx]
 
             eval_df["region"].append(region if region is not None else "all")
             eval_df["score"].append(losses.mean_cat_cross(y_one_hot, output))

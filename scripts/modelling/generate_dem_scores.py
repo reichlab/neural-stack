@@ -80,8 +80,6 @@ def dem_models(weight_files: str) -> List[Model]:
 
 # Entry point
 for target in tqdm(TARGETS):
-    y, Xs, yi = target.get_testing_data(ACTUAL_DL, COMPONENTS, None, TEST_SPLIT_THRESH)
-
     for model in dem_models(snakemake.input.w_files):
         eval_df = {
             "region": [],
@@ -89,20 +87,11 @@ for target in tqdm(TARGETS):
         }
         output_dir = u.ensure_dir(f"./results/{EXP_NAME}/{target.name}")
         for region in REGIONS:
-            if region is not None:
-                region_indices = yi[:, 1] == region
-                y_sub = y[region_indices]
-                Xs_sub = [X[region_indices] for X in Xs]
-                yi_sub = yi[region_indices]
-            else:
-                y_sub = y
-                Xs_sub = Xs
-                yi_sub =yi
-
-            y_one_hot = udists.actual_to_one_hot(y_sub, bins=target.bins)
+            y, Xs, yi = target.get_testing_data(ACTUAL_DL, COMPONENTS, region, TEST_SPLIT_THRESH)
+            y_one_hot = udists.actual_to_one_hot(y, bins=target.bins)
 
             weights = model.get_weights(target, region)
-            output = udists.weighted_ensemble(Xs_sub, weights)
+            output = udists.weighted_ensemble(Xs, weights)
 
             eval_df["region"].append(region if region is not None else "all")
             eval_df["score"].append(losses.mean_cat_cross(y_one_hot, output))

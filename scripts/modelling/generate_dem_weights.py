@@ -124,6 +124,7 @@ def generate_target_region_weights(output_file: str):
         for region in REGIONS:
             y, Xs, yi = target.get_training_data(ACTUAL_DL, COMPONENTS, region, TEST_SPLIT_THRESH)
             scores = udists.score_predictions(Xs, y)
+
             weights["model"] += [c.name for c in COMPONENTS]
             weights["weight"] += list(models.dem(np.exp(scores)))
             weights["target"] += [target.name for c in COMPONENTS]
