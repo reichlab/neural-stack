@@ -1,0 +1,7 @@
+model,target_type,weight
+sarima,weekly,0.4412956185383644
+kcde,weekly,0.22906001667432457
+kde,weekly,0.3296443647873117
+sarima,seasonal,0.331953078148473
+kcde,seasonal,0.1820210693708718
+kde,seasonal,0.48602585248065305

@@ -74,7 +74,7 @@ rule generate_component_scores:
 rule generate_product_scores:
     input:
         data_dir = "data/"
-    output: expand("results/{exp_name}/{target}/product-ensemble.csv", exp_name=config["EXP_NAME"], target=TARGET_NAMES)
+    output: expand("results/{exp_name}/{target}/product.csv", exp_name=config["EXP_NAME"], target=TARGET_NAMES)
     script: "scripts/modelling/generate_product_scores.py"
 
 
