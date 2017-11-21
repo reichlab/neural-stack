@@ -86,7 +86,7 @@ def generate_equal_weights(output_file: str):
 
     weights = pd.DataFrame({
         "model": [c.name for c in COMPONENTS],
-        "weights": [1/len(COMPONENTS) for c in COMPONENTS]
+        "weight": [1/len(COMPONENTS) for c in COMPONENTS]
     })
     weights.to_csv(output_file, index=False)
 

@@ -105,7 +105,7 @@ class Model:
                 # This is target, region weighing
                 weight = c_subset[
                     (c_subset["target"] == target.name) &
-                    (c_subset["region"] == (region if region is not None or "all"))
+                    (c_subset["region"] == (region if region is not None else "all"))
                 ].iloc[0, :]["weight"]
             elif "target" in self.ws.columns:
                 # This is target weighing
@@ -124,7 +124,7 @@ def dem_models(weight_files: str) -> List[Model]:
     """
 
     names = [os.path.basename(f).split(".")[0] for f in weight_files]
-    dfs = [pd.read_csv(f) for f in files]
+    dfs = [pd.read_csv(f) for f in weight_files]
 
     return [Model(n, w) for n, w in zip(names, dfs)]
 
