@@ -5,12 +5,13 @@ Utilities for working with distributions and similar stuff
 import numpy as np
 import pandas as pd
 import os
+import pymmwr
 import matplotlib.pyplot as plt
 from tabulate import tabulate
 from tqdm import tqdm
 from typing import Dict
-import pymmwr
 from sklearn.model_selection import KFold
+from warnings import warn
 
 
 def available_models(exp_dir):
@@ -23,6 +24,43 @@ def available_models(exp_dir):
         os.listdir(exp_dir)
         if os.path.isdir(os.path.join(exp_dir, model))
     ]
+
+
+def epiweek_to_season(epiweek: int) -> int:
+    """
+    Return first year of the season the epiweek belongs to
+    """
+
+    year, week = epiweek // 100, epiweek % 100
+
+    if week <= 30:
+        return year - 1
+    else:
+        return year
+
+
+def epiweek_to_model_week(epiweek: int) -> int:
+    """
+    Convert epiweek to model week. Model week starts from 0 (epiweek 40)
+    to 32 (epiweek 20). Additionally 33 means no onset.
+    """
+
+    if np.isnan(epiweek):
+        return 33
+    else:
+        epiweek = int(epiweek)
+        year, week = epiweek // 100, epiweek % 100
+        if week in range(40, 54):
+            return week - 40
+        elif week in range(1, 21):
+            season = epiweek_to_season(epiweek)
+            return week + pymmwr.mmwr_weeks_in_year(season) - 40
+        elif week in range(21, 40):
+            warn("Model week is outside the planned range")
+            season = epiweek_to_season(epiweek)
+            return week + pymmwr.mmwr_weeks_in_year(season) - 40
+        else:
+            raise Exception(f"Unknown epiweek {epiweek} provided")
 
 
 def encode_epiweeks_sin(epiweeks):
@@ -105,14 +143,6 @@ def cv_train_loso(gen_model, train_model, X, y, yi):
     yi : np.ndarray
         Numpy array of (epiweek, region) indices
     """
-
-    # yi to season indices
-    def epiweek_to_season(ew):
-        year, week = ew // 100, ew % 100
-        if week <= 40:
-            return year - 1
-        else:
-            return year
 
     seasons = [epiweek_to_season(i[0]) for i in yi]
     unique_seasons = list(set(seasons))

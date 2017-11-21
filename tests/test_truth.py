@@ -3,6 +3,7 @@ Test for true targets
 """
 
 import src.utils.data as udata
+import src.utils.misc as u
 import pandas as pd
 import numpy as np
 from operator import eq
@@ -27,7 +28,7 @@ def test_peak_wk():
     assert all(aidx["region"] == [i[1] for i in yi])
 
     assert all([
-        udata.epiweek_to_season(a) == udata.epiweek_to_season(b)
+        u.epiweek_to_season(a) == u.epiweek_to_season(b)
         for a, b in zip([i[0] for i in yi], aidx["epiweek"])
     ])
 
@@ -38,10 +39,10 @@ def test_onset_wk():
     y, Xs, yi = udata.get_seasonal_training_data("onset_wk", None, adl, [])
 
     # Check if all onset weeks of same season are the same
-    seasons = [udata.epiweek_to_season(i[0]) for i in yi]
+    seasons = [u.epiweek_to_season(i[0]) for i in yi]
     df = pd.DataFrame({
         "epiweek": [i[0] for i in yi],
-        "season": [udata.epiweek_to_season(i[0]) for i in yi],
+        "season": [u.epiweek_to_season(i[0]) for i in yi],
         "region": [i[1] for i in yi],
         "onset_wk": y
     })

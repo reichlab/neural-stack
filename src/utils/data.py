@@ -3,12 +3,12 @@ Helper module for working with data
 """
 
 import numpy as np
-import os
 import pandas as pd
+import os
 import pymmwr
-from warnings import warn
 from collections import namedtuple
 from typing import List
+from src.utils import misc as u
 
 
 Component = namedtuple("Component", ["name", "loader"])
@@ -134,43 +134,6 @@ def filter_common_indices(indices):
     return list(merged.drop(merge_on, axis=1).values.T)
 
 
-def epiweek_to_season(epiweek: int) -> int:
-    """
-    Return first year of the season the epiweek belongs to
-    """
-
-    year, week = epiweek // 100, epiweek % 100
-
-    if week <= 30:
-        return year - 1
-    else:
-        return year
-
-
-def epiweek_to_model_week(epiweek: int) -> int:
-    """
-    Convert epiweek to model week. Model week starts from 0 (epiweek 40)
-    to 32 (epiweek 20). Additionally 33 means no onset.
-    """
-
-    if np.isnan(epiweek):
-        return 33
-    else:
-        epiweek = int(epiweek)
-        year, week = epiweek // 100, epiweek % 100
-        if week in range(40, 54):
-            return week - 40
-        elif week in range(1, 21):
-            season = epiweek_to_season(epiweek)
-            return week + pymmwr.mmwr_weeks_in_year(season) - 40
-        elif week in range(21, 40):
-            warn("Model week is outside the planned range")
-            season = epiweek_to_season(epiweek)
-            return week + pymmwr.mmwr_weeks_in_year(season) - 40
-        else:
-            raise Exception(f"Unknown epiweek {epiweek} provided")
-
-
 def get_seasonal_training_data(target, region_identifier, actual_data_loader, component_data_loaders):
     """
     Return well formed y, Xs and yi for asked week and region
@@ -186,7 +149,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
 
     true_df = actual_idx.copy().iloc[filter_indices[0], :]
     true_df["wili"] = actual_data[filter_indices[0]]
-    true_df["season"] = true_df.apply(lambda row: epiweek_to_season(row["epiweek"]), axis=1)
+    true_df["season"] = true_df.apply(lambda row: u.epiweek_to_season(row["epiweek"]), axis=1)
     true_df["order"] = np.arange(0, true_df.shape[0])
 
     # Calculate peak week and value maps
@@ -213,7 +176,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     if target == "peak":
         y = peaks_df["peak"].values
     elif target == "peak_wk":
-        y = np.array([epiweek_to_model_week(ew) for ew in peaks_df["peak_wk"].values])
+        y = np.array([u.epiweek_to_model_week(ew) for ew in peaks_df["peak_wk"].values])
     elif target == "onset_wk":
         onset_wks = {
             "region": [],
@@ -228,7 +191,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
         onset_wks = pd.DataFrame(onset_wks)
 
         onset_output = peaks_df.merge(onset_wks, on=["season", "region"]).sort_values("order")["onset_wk"].values
-        y = np.array([epiweek_to_model_week(ew) for ew in onset_output])
+        y = np.array([u.epiweek_to_model_week(ew) for ew in onset_output])
     else:
         raise Exception(f"Unknown target {target}")
 
