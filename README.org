@@ -5,18 +5,31 @@ Neural network based ensemble of flu prediction models.
 Experiments are kept in ~./notebooks~. Non-notebook code lies in ~./src~. Helper
 scripts for snakemake are in ~./scripts~.
 
-#+BEGIN_SRC sh
+** Steps to reproduce
+#+BEGIN_SRC bash
+# Clone the repository with submodules
+git clone git@github.com:reichlab/neural-stack --recursive
+cd neural-stack
+
+# Setup dependencies
 pip install pipenv
 pipenv install
 
 # Collect latest actual data
-pipenv run snakemake actual_data
-# Separate model predictions from adaptively ensemble project
-pipenv run snakemake separate_model_data
+pipenv run snakemake get_actual_data
 
-# Run notebooks
-cd notebooks
-pipenv run jupyter notebook
+# Preprocess data for the two experiments
+# See last section of this readme for experiment description
+pipenv run snakemake get_lab_data
+pipenv run snakemake get_collaborative_data
+
+# Edit config to select the experiment to run
+eval $EDITOR config.yaml
+
+# Generate results from non-notebook models
+pipenv run snakemake generate_component_scores
+pipenv run snakemake generate_product_scores
+pipenv run snakemake generate_dem_scores
 #+END_SRC
 
 * Data
@@ -52,7 +65,7 @@ There are two type of data files needed by the models.
 
    Each wili target (week ahead targets and peak wili target) has 131 bins. 130
    bins as follows [0.0, 0.1), [0.1, 0.2) ... [12.9, 13.0) and one bin for
-   values in [13.0, 100].
+   values in [13.0, 100] (we skip this while modelling).
 
    For /onset week/, we have 34 bins. 33 of these represent the weeks, while the
    last one represents bin for /no/ onset. /Peak week/ just has 33 bins representing
@@ -108,9 +121,14 @@ repository.
 
 ** Mixture Density Network
 
-Notebook ~./notebooks/1.0-mixture-density-network.ipynb~ uses a simple mixture
+Notebooks ~./notebooks/*-mixture-density-network*.ipynb~ use a simple mixture
 density network to predict a mixture of normal distributions to provide the
 target distributions.
+
+** Convolutional Networks
+
+Notebooks ~./notebooks/*cnn*.ipynb~ use convolutional layers to model the full
+probability distribution directly.
 
 ** Residual fit network
 
@@ -120,12 +138,15 @@ ensemble. The notebook for this is ~./notebooks/2.0-fitting-residuals.ipynb~.
 
 * Experiments for paper
 
-The following section documents two experiments to run to test our the neural network ensembles.
+The following section documents two experiments to run to test our the neural
+network ensembles.
 
 ** A: FluSightNetwork models (2010/2011 - 2016/2017)
     
+Experiment name ~collaborative~
+
 - 4 training seasons, 3 testing
-- using some selection of models (>3) from FluSightNetwork
+- using all component models from FluSightNetwork
 - component model forecasts are made on unrevised data prospectively
 - NN training/selection: Leave one season out cross validation is used
   hyperparameter tuning.
@@ -134,9 +155,12 @@ The following section documents two experiments to run to test our the neural ne
     
 ** B: CDC Flu forecasting based on Evan's paper (1997/1998 - 2015/2016)
 
+Experiment name ~lab~
+
 - 14 training, 5 test seasons
 - 3 component models (KDE, KCDE, SARIMA)
-- component model forecasts made on revised data and in training phase are done using LOSO
+- component model forecasts made on revised data and in training phase are done
+  using LOSO
 - NN training/selection: Leave one season out cross validation is used
   hyperparameter tuning.
 - ensembles to compare: EW, CW, FW-reg-w (?), NN1, NN2
