@@ -4,6 +4,7 @@ Utilities for working with distributions
 
 import numpy as np
 import losses
+import keras.backend as K
 from typing import List
 from scipy.stats import norm
 from warnings import warn
