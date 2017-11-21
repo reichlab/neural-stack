@@ -6,6 +6,7 @@ import numpy as np
 import os
 import pandas as pd
 import pymmwr
+from warnings import warn
 from collections import namedtuple
 from typing import List
 
@@ -18,8 +19,8 @@ class ComponentDataLoader:
     Data loader for component models
     """
 
-    def __init__(self, data_dir: str, model_identifier: str) -> None:
-        self.root_path = os.path.join(data_dir, "processed", "components", model_identifier)
+    def __init__(self, exp_dir: str, model_identifier: str) -> None:
+        self.root_path = os.path.join(exp_dir, model_identifier)
         self.index = pd.read_csv(os.path.join(self.root_path, "index.csv"))
 
     def get(self, data_identifier, region_identifier=None, epiweek_range=None):
@@ -162,8 +163,12 @@ def epiweek_to_model_week(epiweek: int) -> int:
         elif week in range(1, 21):
             season = epiweek_to_season(epiweek)
             return week + pymmwr.mmwr_weeks_in_year(season) - 40
+        elif week in range(21, 40):
+            warn("Model week is outside the planned range")
+            season = epiweek_to_season(epiweek)
+            return week + pymmwr.mmwr_weeks_in_year(season) - 40
         else:
-            raise Exception("Unknown week range provided")
+            raise Exception(f"Unknown epiweek {epiweek} provided")
 
 
 def get_seasonal_training_data(target, region_identifier, actual_data_loader, component_data_loaders):

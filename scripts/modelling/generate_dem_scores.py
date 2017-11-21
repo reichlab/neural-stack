@@ -17,12 +17,14 @@ from glob import glob
 from typing import List
 
 
+data_dir = snakemake.input.data_dir
 EXP_NAME = snakemake.config["EXP_NAME"]
+exp_dir = os.path.join(data_dir, "processed", EXP_NAME)
 TEST_SPLIT_THRESH = snakemake.config["TEST_SPLIT_THRESH"][EXP_NAME]
 
-COMPONENT_NAMES = u.available_models("./data")
-COMPONENTS = udata.get_components("./data", COMPONENT_NAMES)
-ACTUAL_DL = udata.ActualDataLoader("./data")
+COMPONENT_NAMES = u.available_models(exp_dir)
+COMPONENTS = udata.get_components(exp_dir, COMPONENT_NAMES)
+ACTUAL_DL = udata.ActualDataLoader(data_dir)
 
 REGIONS = ["nat", *[f"hhs{i}" for i in range(1, 11)], None]
 TARGET_NAMES = [1, 2, 3, 4, "peak", "peak_wk", "onset_wk"]
@@ -102,7 +104,8 @@ class Model:
             elif "region" in self.ws.columns:
                 # This is target, region weighing
                 weight = c_subset[
-                    (c_subset["target"] == target.name) & (c_subset["region"] == region)
+                    (c_subset["target"] == target.name) &
+                    (c_subset["region"] == (region if region is not None or "all"))
                 ].iloc[0, :]["weight"]
             elif "target" in self.ws.columns:
                 # This is target weighing

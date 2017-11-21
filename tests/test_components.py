@@ -6,6 +6,10 @@ import gzip
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import yaml
+
+with open("./config.yaml") as fp:
+    CONFIG = yaml.load(fp)
 
 
 # Numpy files expected in the model dir
@@ -25,7 +29,7 @@ def get_component_dirs():
     Return model dir paths
     """
 
-    return [x for x in Path("./data/processed/components").iterdir() if x.is_dir()]
+    return [x for x in Path(f"./data/processed/{CONFIG['EXP_NAME']}").iterdir() if x.is_dir()]
 
 
 def get_index_rows(component_dir) -> int:

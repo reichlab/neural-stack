@@ -28,9 +28,8 @@ def test_peak_wk():
 
     assert all([
         udata.epiweek_to_season(a) == udata.epiweek_to_season(b)
-        for a, b in zip(y, aidx["epiweek"])
+        for a, b in zip([i[0] for i in yi], aidx["epiweek"])
     ])
-
 
 
 def test_onset_wk():
@@ -52,8 +51,8 @@ def test_onset_wk():
 
     # Random checks
     onset_map = [
-        [1997, "nat", 199747],
-        [2007, "nat", 200752]
+        [1997, "nat", 7],
+        [2007, "nat", 12]
     ]
 
     for item in onset_map:

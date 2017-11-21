@@ -13,17 +13,15 @@ import pymmwr
 from sklearn.model_selection import KFold
 
 
-def available_models(data_dir):
+def available_models(exp_dir):
     """
     Return name of models available as components in data_dir
     """
 
-    comp_path = os.path.join(data_dir, "processed", "components")
-
     return [
         model for model in
-        os.listdir(comp_path)
-        if os.path.isdir(os.path.join(comp_path, model))
+        os.listdir(exp_dir)
+        if os.path.isdir(os.path.join(exp_dir, model))
     ]
 
 

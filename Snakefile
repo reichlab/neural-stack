@@ -63,12 +63,19 @@ rule get_collaborative_data:
 
 # Component model scoring
 # -----------------------
-# rule generate_component_scores:
+rule generate_component_scores:
+    input:
+        data_dir = "data/"
+    script: "scripts/modelling/generate_component_scores.py"
 
 
 # Other misc ensemble scoring
 # ---------------------------
-# rule generate_product_scores:
+rule generate_product_scores:
+    input:
+        data_dir = "data/"
+    output: expand("results/{exp_name}/{target}/product-ensemble.csv", exp_name=config["EXP_NAME"], target=TARGET_NAMES)
+    script: "scripts/modelling/generate_product_scores.py"
 
 
 # Degenerate EM
@@ -91,6 +98,8 @@ rule generate_dem_weights:
 
 # Generate scores for dem models using weights
 rule generate_dem_scores:
-    input: expand("weights/{exp_name}/{model}.csv", exp_name=config["EXP_NAME"], model=dem_models)
+    input:
+        data_dir = "data/",
+        w_files = expand("weights/{exp_name}/{model}.csv", exp_name=config["EXP_NAME"], model=dem_models)
     output: expand("results/{exp_name}/{target}/{model}.csv", exp_name=config["EXP_NAME"], target=TARGET_NAMES, model=dem_models)
     script: "scripts/modelling/generate_dem_scores.py"
