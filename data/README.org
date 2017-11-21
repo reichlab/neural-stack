@@ -96,23 +96,21 @@ Each ~np.gz~ file is a compressed numpy matrix with predefined number of columns
 for each bin and some number of rows mapped to actual epiweek and region using
 the file ~index.csv~. A sample index file is shown below:
 
-#+BEGIN_SRC bash :exports both :results output
+#+BEGIN_SRC bash :exports both
 head ./processed/collaborative/CU-BMA/index.csv
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-epiweek,region
-201341,nat
-201341,hhs1
-201341,hhs2
-201341,hhs3
-201341,hhs4
-201341,hhs5
-201341,hhs6
-201341,hhs7
-201341,hhs8
-#+end_example
+| epiweek | region |
+|  201341 | nat    |
+|  201341 | hhs1   |
+|  201341 | hhs2   |
+|  201341 | hhs3   |
+|  201341 | hhs4   |
+|  201341 | hhs5   |
+|  201341 | hhs6   |
+|  201341 | hhs7   |
+|  201341 | hhs8   |
 
 The ~np.gz~ files have some fixed number of columns they contain depending on what
 type of prediction they are. A detailed description follows:
@@ -141,43 +139,37 @@ This directory also contains ~./processed/actual.csv~ which has actual wili data
 and ~./processed/baseline.csv~ with baseline for each season, region pair as shown
 below:
 
-#+BEGIN_SRC bash :exports both :results output
+#+BEGIN_SRC bash :exports both
 head ./processed/actual.csv
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-epiweek,region,wili
-199740,nat,1.1014825590386
-199741,nat,1.2000682166927
-199742,nat,1.378763290902
-199743,nat,1.1991993499089
-199744,nat,1.656177824396
-199745,nat,1.4132646790523
-199746,nat,1.9867965365904
-199747,nat,2.4474939169092
-199748,nat,1.7390086933452
-#+end_example
+| epiweek | region |            wili |
+|  199740 | nat    | 1.1014825590386 |
+|  199741 | nat    | 1.2000682166927 |
+|  199742 | nat    |  1.378763290902 |
+|  199743 | nat    | 1.1991993499089 |
+|  199744 | nat    |  1.656177824396 |
+|  199745 | nat    | 1.4132646790523 |
+|  199746 | nat    | 1.9867965365904 |
+|  199747 | nat    | 2.4474939169092 |
+|  199748 | nat    | 1.7390086933452 |
 
-#+BEGIN_SRC bash :exports both :results output
-cat ./processed/baseline.csv
+#+BEGIN_SRC bash :exports both
+head ./processed/baseline.csv
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-,2007-2008,2008-2009,2009-2010,2010-2011,2011-2012,2012-2013,2013-2014,2014-2015,2015-2016,2016-2017,2017-2018
-nat,2.2,2.4,2.3,2.5,2.4,2.2,2.0,2.0,2.1,2.2,2.2
-hhs1,1.4,1.5,1.2,1.4,1.1,1.0,1.2,1.2,1.3,1.4,1.4
-hhs2,3.0,2.9,2.3,2.4,2.5,2.0,2.2,2.3,2.3,3.0,3.1
-hhs3,3.6,3.5,3.0,2.6,2.5,2.2,2.0,2.0,1.8,2.2,2.0
-hhs4,1.8,2.0,2.0,2.3,2.3,2.3,1.9,1.9,1.6,1.7,1.9
-hhs5,2.6,1.9,1.7,1.8,1.6,1.5,1.6,1.7,1.9,1.9,1.8
-hhs6,4.1,4.6,4.8,4.9,4.3,3.4,2.9,3.2,3.6,4.1,4.2
-hhs7,1.9,1.8,1.9,2.3,2.3,2.1,1.8,1.7,1.7,1.8,1.9
-hhs8,1.6,1.5,1.3,1.7,2.1,1.9,1.3,1.3,1.4,1.4,1.3
-hhs9,3.4,2.7,2.8,4.1,3.9,3.5,2.9,2.7,2.6,2.5,2.4
-hhs10,3.3,3.5,3.3,2.2,2.2,1.4,1.3,1.1,1.1,1.1,1.4
-#+end_example
+| region | season | baseline |
+| nat    |   1990 |      2.2 |
+| hhs1   |   1990 |      1.4 |
+| hhs2   |   1990 |      3.0 |
+| hhs3   |   1990 |      3.6 |
+| hhs4   |   1990 |      1.8 |
+| hhs5   |   1990 |      2.6 |
+| hhs6   |   1990 |      4.1 |
+| hhs7   |   1990 |      1.9 |
+| hhs8   |   1990 |      1.6 |
 
 The actual data can be downloaded using the [[https://github.com/cmu-delphi/delphi-epidata][delphi-epidata]] api by running the
 following from the repo root:
