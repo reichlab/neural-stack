@@ -6,6 +6,11 @@ import numpy as np
 import os
 import pandas as pd
 import pymmwr
+from collections import namedtuple
+from typing import List
+
+
+Component = namedtuple("Component", ["name", "loader"])
 
 
 class ComponentDataLoader:
@@ -48,6 +53,14 @@ class ComponentDataLoader:
             return [self.index[selection].reset_index(drop=True), data[selection]]
         else:
             return [self.index, data]
+
+
+def get_components(data_dir: str, names: List[str]) -> List[Component]:
+    """
+    Return simple wrapper over component loader using provided names
+    """
+
+    return [Component(name=name, loader=ComponentDataLoader(data_dir, name)) for name in names]
 
 
 class ActualDataLoader:
