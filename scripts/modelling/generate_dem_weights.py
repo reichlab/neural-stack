@@ -30,55 +30,6 @@ REGIONS = ["nat", *[f"hhs{i}" for i in range(1, 11)], None]
 TARGET_NAMES = [1, 2, 3, 4, "peak", "peak_wk", "onset_wk"]
 
 
-class Target:
-    """
-    Class collecting properties of a target
-    """
-
-    def __init__(self, name) -> None:
-        self._name = name
-
-    @property
-    def name(self):
-        return str(self._name)
-
-    @property
-    def type(self):
-        if self._name in range(1, 5):
-            return "weekly"
-        else:
-            return "seasonal"
-
-    @property
-    def bins(self):
-        if self._name in [1, 2, 3, 4, "peak"]:
-            return udists.BINS["wili"]
-        else:
-            return udists.BINS[self._name]
-
-    @property
-    def getter_fn(self):
-        if self.type == "weekly":
-            return udata.get_week_ahead_training_data
-
-        else:
-            return udata.get_seasonal_training_data
-
-    def get_training_data(self, region=None):
-        """
-        Return training y, Xs, yi for target and all regions
-        """
-
-        y, Xs, yi = self.getter_fn(
-            self._name, region,
-            ACTUAL_DL, [c.loader for c in COMPONENTS]
-        )
-
-        train_indices = yi[:, 0] < TEST_SPLIT_THRESH
-
-        return y[train_indices], [X[train_indices] for X in Xs], yi[train_indices]
-
-
 def generate_equal_weights(output_file: str):
     """
     Generate equal weights df
@@ -96,10 +47,10 @@ def generate_constant_weights(output_file: str):
     Generate constant weights using degenerate em
     """
 
-    targets = [Target(name) for name in TARGET_NAMES]
+    targets = [udata.Target(name) for name in TARGET_NAMES]
     scores = []
     for target in targets:
-        y, Xs, yi = target.get_training_data()
+        y, Xs, yi = target.get_training_data(ACTUAL_DL, COMPONENTS, None, TEST_SPLIT_THRESH)
         scores.append(udists.score_predictions(Xs, y))
 
     scores = np.concatenate(scores, axis=0)
@@ -115,7 +66,7 @@ def generate_target_weights(output_file: str):
     Generate weights based on targets using degenerate em
     """
 
-    targets = [Target(name) for name in TARGET_NAMES]
+    targets = [udata.Target(name) for name in TARGET_NAMES]
     weights = {
         "model": [],
         "target": [],
@@ -123,7 +74,7 @@ def generate_target_weights(output_file: str):
     }
 
     for target in targets:
-        y, Xs, yi = target.get_training_data()
+        y, Xs, yi = target.get_training_data(ACTUAL_DL, COMPONENTS, None, TEST_SPLIT_THRESH)
         scores = udists.score_predictions(Xs, y)
 
         weights["model"] += [c.name for c in COMPONENTS]
@@ -138,7 +89,7 @@ def generate_target_type_weights(output_file: str):
     Generate weights based on target types using degenerate em
     """
 
-    targets = [Target(name) for name in TARGET_NAMES]
+    targets = [udata.Target(name) for name in TARGET_NAMES]
     weights = {
         "model": [],
         "target_type": [],
@@ -149,7 +100,7 @@ def generate_target_type_weights(output_file: str):
         scores = []
         for target in targets:
             if target.type == target_type:
-                y, Xs, yi = target.get_training_data()
+                y, Xs, yi = target.get_training_data(ACTUAL_DL, COMPONENTS, None, TEST_SPLIT_THRESH)
                 scores = udists.score_predictions(Xs, y)
 
         weights["model"] += [c.name for c in COMPONENTS]
@@ -167,7 +118,7 @@ def generate_target_region_weights(output_file: str):
     Generate weights based on target and region using degenerate em
     """
 
-    targets = [Target(name) for name in TARGET_NAMES]
+    targets = [udata.Target(name) for name in TARGET_NAMES]
     weights = {
         "model": [],
         "target": [],
@@ -179,7 +130,7 @@ def generate_target_region_weights(output_file: str):
 
     for target in targets:
         for region in regions:
-            y, Xs, yi = target.get_training_data(region)
+            y, Xs, yi = target.get_training_data(ACTUAL_DL, COMPONENTS, region, TEST_SPLIT_THRESH)
             scores = udists.score_predictions(Xs, y)
             weights["model"] += [c.name for c in COMPONENTS]
             weights["weight"] += list(models.dem(np.exp(scores)))

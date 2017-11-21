@@ -8,7 +8,7 @@ import os
 import pymmwr
 from collections import namedtuple
 from typing import List
-from src.utils import misc as u
+from utils import misc as u
 
 
 Component = namedtuple("Component", ["name", "loader"])
@@ -170,8 +170,6 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
         except IndexError:
             return None
 
-    # TODO
-    # - Filter out seasons with onset None. Might need to see how much data it removes
     y = []
     if target == "peak":
         y = peaks_df["peak"].values
@@ -242,3 +240,68 @@ def get_week_ahead_training_data(week_ahead, region_identifier, actual_data_load
         Xs.append(component_idx_data[i][1][filter_indices[i + 1]][:, :-1])
 
     return y, Xs, actual_idx.as_matrix()[filter_indices[0]]
+
+
+class Target:
+    """
+    Class collecting properties of a target
+    """
+
+    def __init__(self, name) -> None:
+        self._name = name
+
+    @property
+    def name(self):
+        """
+        Convert to string to handle numerical targets
+        """
+
+        return str(self._name)
+
+    @property
+    def type(self):
+        if self._name in range(1, 5):
+            return "weekly"
+        else:
+            return "seasonal"
+
+    @property
+    def bins(self):
+        if self._name in [1, 2, 3, 4, "peak"]:
+            return np.linspace(0, 12.9, 130)
+        elif self._name == "peak_wk":
+            return np.arange(0, 33)
+        elif self._name == "onset_wk":
+            return np.arange(0, 34)
+
+    @property
+    def getter_fn(self):
+        if self.type == "weekly":
+            return get_week_ahead_training_data
+
+        else:
+            return get_seasonal_training_data
+
+    def _get_all_data(self, actual_dl, components, region):
+        return self.getter_fn(
+            self._name, region,
+            actual_dl, [c.loader for c in components]
+        )
+
+    def get_training_data(self, actual_dl, components, region, split_thresh):
+        """
+        Return training y, Xs, yi for target and all regions
+        """
+
+        y, Xs, yi = self._get_all_data(actual_dl, components, region)
+        train_indices = yi[:, 0] < split_thresh
+        return y[train_indices], [X[train_indices] for X in Xs], yi[train_indices]
+
+    def get_testing_data(self, actual_dl, components, region, split_thresh):
+        """
+        Return testing y, Xs, yi for target and all regions
+        """
+
+        y, Xs, yi = self._get_all_data(actual_dl, components, region)
+        test_indices = yi[:, 0] >= split_thresh
+        return y[test_indices], [X[test_indices] for X in Xs], yi[test_indices]

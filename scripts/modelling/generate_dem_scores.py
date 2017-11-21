@@ -30,55 +30,6 @@ REGIONS = ["nat", *[f"hhs{i}" for i in range(1, 11)], None]
 TARGET_NAMES = [1, 2, 3, 4, "peak", "peak_wk", "onset_wk"]
 
 
-class Target:
-    """
-    Class collecting properties of a target
-    """
-
-    def __init__(self, name) -> None:
-        self._name = name
-
-    @property
-    def name(self):
-        return str(self._name)
-
-    @property
-    def type(self):
-        if self._name in range(1, 5):
-            return "weekly"
-        else:
-            return "seasonal"
-
-    @property
-    def bins(self):
-        if self._name in [1, 2, 3, 4, "peak"]:
-            return udists.BINS["wili"]
-        else:
-            return udists.BINS[self._name]
-
-    @property
-    def getter_fn(self):
-        if self.type == "weekly":
-            return udata.get_week_ahead_training_data
-
-        else:
-            return udata.get_seasonal_training_data
-
-    def get_testing_data(self):
-        """
-        Return testing y, Xs, yi for target and all regions
-        """
-
-        y, Xs, yi = self.getter_fn(
-            self._name, None,
-            ACTUAL_DL, [c.loader for c in COMPONENTS]
-        )
-
-        train_indices = yi[:, 0] < TEST_SPLIT_THRESH
-
-        return y[~train_indices], [X[~train_indices] for X in Xs], yi[~train_indices]
-
-
 class Model:
     """
     Class collecting model properties
@@ -88,7 +39,7 @@ class Model:
         self.name = name
         self.ws = weights_df
 
-    def get_weights(self, target: Target, region: str) -> np.ndarray:
+    def get_weights(self, target: udata.Target, region: str) -> np.ndarray:
         """
         Return weights for component models in the order of COMPONENTS.
         """
@@ -130,8 +81,8 @@ def dem_models(weight_files: str) -> List[Model]:
 
 
 # Entry point
-for target in tqdm([Target(t) for t in TARGET_NAMES]):
-    y, Xs, yi = target.get_testing_data()
+for target in tqdm([udata.Target(t) for t in TARGET_NAMES]):
+    y, Xs, yi = target.get_testing_data(ACTUAL_DL, COMPONENTS, None, TEST_SPLIT_THRESH)
 
     for model in dem_models(snakemake.input.w_files):
         eval_df = {
