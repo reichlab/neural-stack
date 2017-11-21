@@ -12,22 +12,26 @@ tree -L 2 -a
 .
 ├── external
 │   ├── adaptively-weighted-ensemble
-│   ├── ensemble-data.csv.gz
-│   └── flusight-data-dir
+│   ├── cdc-flusight-ensemble
+│   ├── collaborative
+│   ├── .gitignore
+│   └── lab
 ├── processed
 │   ├── actual.csv
 │   ├── baseline.csv
-│   └── components
+│   ├── collaborative
+│   ├── .gitignore
+│   └── lab
 └── README.org
 
-5 directories, 3 files
+8 directories, 6 files
 #+end_example
 
 The data pre processing workflow involves putting data files in appropriate
 ~./external~ directory and running corresponding snakemake task from the
 repository root. After processing, the component model data are collected in the
-directory ~./processed/components/~. The data from here are then picked up by the
-notebooks.
+directory ~./processed/collaborative/~ or ~./processed/lab/~. The data from here are
+then picked up by the notebooks.
 
 * ~external~
 
@@ -36,80 +40,41 @@ sources:
 
 ** ~adaptively-weighted-ensemble~ 
 
-This contains ~.rds~ outputs from [[https://github.com/reichlab/adaptively-weighted-ensemble/][adaptively-weighted-ensemble]] repository. Running
-the following snakemake task from the repo root will pull in required data from
-this directory in a single ~./external/ensemble-data.csv.gz~ (this is version
-controlled).
+This contains a git submodule clone of [[https://github.com/reichlab/adaptively-weighted-ensemble/][adaptively-weighted-ensemble]] repository.
+Running the following snakemake task from the repo root will pull in required
+data from this directory in a single ~./external/ensemble-data.csv.gz~.
 
 #+BEGIN_SRC bash
-snakemake assemble_ensemble_data
+snakemake process_lab_dir
+snakemake preprocess_lab_data
 #+END_SRC
 
 After generating the csv.gz, running the following command generates processed
-model prediction files in ~./processed/components/~.
+model prediction files in ~./processed/lab/~.
 
 #+BEGIN_SRC bash
-snakemake separate_ensemble_data
+snakemake get_lab_data
 #+END_SRC
 
-** ~flusight-data-dir~
+** ~cdc-flusight-ensemble~
 
-This keeps CDC format submissions files in flusight style directory structure. A
-sample structure is shown (upto model directory level):
-
-#+BEGIN_SRC bash :results output :exports both
-tree -L 2 external/flusight-data-dir
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-external/flusight-data-dir
-├── 2010-2011
-│   ├── CU-RHF_SEIRS
-│   ├── Delphi-EmpiricalTraj
-│   └── LANL-DBM
-├── 2011-2012
-│   ├── CU-RHF_SEIRS
-│   ├── Delphi-EmpiricalTraj
-│   └── LANL-DBM
-├── 2012-2013
-│   ├── CU-RHF_SEIRS
-│   ├── Delphi-EmpiricalTraj
-│   └── LANL-DBM
-├── 2013-2014
-│   ├── CU-RHF_SEIRS
-│   ├── Delphi-EmpiricalTraj
-│   └── LANL-DBM
-├── 2014-2015
-│   ├── CU-RHF_SEIRS
-│   ├── Delphi-EmpiricalTraj
-│   └── LANL-DBM
-├── 2015-2016
-│   ├── CU-RHF_SEIRS
-│   ├── Delphi-EmpiricalTraj
-│   └── LANL-DBM
-└── 2016-2017
-    ├── CU-RHF_SEIRS
-    ├── Delphi-EmpiricalTraj
-    └── LANL-DBM
-
-28 directories, 0 files
-#+end_example
-
-These csvs can be processed using the following command from repo root:
+This is a git submodule clone of [[https://github.com/FlusightNetwork/cdc-flusight-ensemble][cdc-flusight-ensemble]] repo. Running the
+following snakemake tasks pulls in data from this source to
+~./processed/collaborative~.
 
 #+BEGIN_SRC bash
-snakemake pull_flusight_data
+snakemake process_collaborative_dir
+snakemake get_collaborative_data
 #+END_SRC
 
 * ~processed~
 
 This contains the final processed data which are then used by notebooks. For
-each model, there is a directory inside ~./processed/components/~ containing the
+each model, there is a directory inside ~./processed/{exp_name}/~ containing the
 following files:
 
 #+BEGIN_SRC bash :exports both :results output
-ls -al ./processed/components/CU-BMA
+ls -al ./processed/collaborative/CU-BMA
 #+END_SRC
 
 #+RESULTS:
@@ -132,7 +97,7 @@ for each bin and some number of rows mapped to actual epiweek and region using
 the file ~index.csv~. A sample index file is shown below:
 
 #+BEGIN_SRC bash :exports both :results output
-head ./processed/components/CU-BMA/index.csv
+head ./processed/collaborative/CU-BMA/index.csv
 #+END_SRC
 
 #+RESULTS:
