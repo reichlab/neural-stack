@@ -96,6 +96,10 @@ for target in tqdm([Target(t) for t in TARGET_NAMES]):
                 y_sub = y[region_indices]
                 X_sub = Xs[idx][region_indices]
                 yi_sub = yi[region_indices]
+            else:
+                y_sub = y
+                X_sub = Xs[idx]
+                yi_sub = yi
 
             y_one_hot = udists.actual_to_one_hot(y_sub, bins=target.bins)
             output = X_sub
