@@ -9,6 +9,7 @@ import losses
 from typing import List
 from functools import reduce
 from scipy.stats import norm
+from warnings import warn
 
 
 BINS = {
@@ -104,6 +105,9 @@ def actual_to_one_hot(wili, bins=BINS["wili"]):
     y = np.zeros((wili.shape[0], bins.shape[0]))
 
     indices = np.digitize(wili, bins, right=True)
+    if indices.max() == bins.shape[0]:
+        warn("There are values hitting the upper limit in actual_to_one_hot")
+        indices[indices == bins.shape[0]] = bins.shape[0] - 1
     for i in range(len(wili)):
         y[i, indices[i]] = 1
 
