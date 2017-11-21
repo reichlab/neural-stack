@@ -1,4 +1,4 @@
-# Snakefile for processes
+# Snakefile for tasks
 
 configfile: "config.yaml"
 
