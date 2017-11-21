@@ -133,7 +133,7 @@ def _get_seasonal_training_data(target_name: str, region, actual_data_loader: Ac
     """
 
     actual_idx, actual_data = actual_data_loader.get(region=region)
-    component_idx_data = [c.loader.get(target_name, region=region) for c in components]
+    component_idx_data = [c.get(target_name, region=region) for c in components]
 
     filter_indices = _filter_common_indices([actual_idx, *[c[0] for c in component_idx_data]])
 
@@ -204,7 +204,7 @@ def _get_week_ahead_training_data(week_ahead: int, region, actual_data_loader: A
     """
 
     actual_idx, actual_data = actual_data_loader.get(week_shift=week_ahead, region=region)
-    component_idx_data = [c.loader.get(week_ahead, region=region) for c in components]
+    component_idx_data = [c.get(week_ahead, region=region) for c in components]
 
     filter_indices = _filter_common_indices([actual_idx, *[c[0] for c in component_idx_data]])
 
@@ -259,10 +259,7 @@ class Target:
             return _get_seasonal_training_data
 
     def _get_all_data(self, actual_dl, components, region):
-        return self.getter_fn(
-            self._name, region,
-            actual_dl, [c.loader for c in components]
-        )
+        return self.getter_fn(self._name, region, actual_dl, components)
 
     def get_training_data(self, actual_dl: ActualDataLoader, components: List[Component], region, split_thresh: int):
         """
