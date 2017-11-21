@@ -13,7 +13,6 @@ import utils.misc as u
 import models
 import os
 from tqdm import tqdm
-from glob import glob
 from typing import List
 
 
@@ -22,12 +21,11 @@ EXP_NAME = snakemake.config["EXP_NAME"]
 exp_dir = os.path.join(data_dir, "processed", EXP_NAME)
 TEST_SPLIT_THRESH = snakemake.config["TEST_SPLIT_THRESH"][EXP_NAME]
 
-COMPONENT_NAMES = u.available_models(exp_dir)
-COMPONENTS = udata.get_components(exp_dir, COMPONENT_NAMES)
+COMPONENTS = [udata.Component(exp_dir, name) for name in u.available_models(exp_dir)]
 ACTUAL_DL = udata.ActualDataLoader(data_dir)
 
 REGIONS = ["nat", *[f"hhs{i}" for i in range(1, 11)], None]
-TARGET_NAMES = [1, 2, 3, 4, "peak", "peak_wk", "onset_wk"]
+TARGETS = [udata.Target(t) for t in [1, 2, 3, 4, "peak", "peak_wk", "onset_wk"]]
 
 
 def generate_equal_weights(output_file: str):
@@ -47,9 +45,8 @@ def generate_constant_weights(output_file: str):
     Generate constant weights using degenerate em
     """
 
-    targets = [udata.Target(name) for name in TARGET_NAMES]
     scores = []
-    for target in targets:
+    for target in TARGETS:
         y, Xs, yi = target.get_training_data(ACTUAL_DL, COMPONENTS, None, TEST_SPLIT_THRESH)
         scores.append(udists.score_predictions(Xs, y))
 
@@ -66,14 +63,13 @@ def generate_target_weights(output_file: str):
     Generate weights based on targets using degenerate em
     """
 
-    targets = [udata.Target(name) for name in TARGET_NAMES]
     weights = {
         "model": [],
         "target": [],
         "weight": []
     }
 
-    for target in targets:
+    for target in TARGETS:
         y, Xs, yi = target.get_training_data(ACTUAL_DL, COMPONENTS, None, TEST_SPLIT_THRESH)
         scores = udists.score_predictions(Xs, y)
 
@@ -89,7 +85,6 @@ def generate_target_type_weights(output_file: str):
     Generate weights based on target types using degenerate em
     """
 
-    targets = [udata.Target(name) for name in TARGET_NAMES]
     weights = {
         "model": [],
         "target_type": [],
@@ -98,7 +93,7 @@ def generate_target_type_weights(output_file: str):
 
     def _append_target_type_weight(target_type):
         scores = []
-        for target in targets:
+        for target in TARGETS:
             if target.type == target_type:
                 y, Xs, yi = target.get_training_data(ACTUAL_DL, COMPONENTS, None, TEST_SPLIT_THRESH)
                 scores = udists.score_predictions(Xs, y)
@@ -118,7 +113,6 @@ def generate_target_region_weights(output_file: str):
     Generate weights based on target and region using degenerate em
     """
 
-    targets = [udata.Target(name) for name in TARGET_NAMES]
     weights = {
         "model": [],
         "target": [],
@@ -126,10 +120,8 @@ def generate_target_region_weights(output_file: str):
         "weight": []
     }
 
-    regions = ["nat", *[f"hhs{i}" for i in range(1, 11)], None]
-
-    for target in targets:
-        for region in regions:
+    for target in TARGETS:
+        for region in REGIONS:
             y, Xs, yi = target.get_training_data(ACTUAL_DL, COMPONENTS, region, TEST_SPLIT_THRESH)
             scores = udists.score_predictions(Xs, y)
             weights["model"] += [c.name for c in COMPONENTS]

@@ -13,7 +13,6 @@ import utils.misc as u
 import losses
 import os
 from tqdm import tqdm
-from glob import glob
 from typing import List
 
 
@@ -22,12 +21,11 @@ EXP_NAME = snakemake.config["EXP_NAME"]
 exp_dir = os.path.join(data_dir, "processed", EXP_NAME)
 TEST_SPLIT_THRESH = snakemake.config["TEST_SPLIT_THRESH"][EXP_NAME]
 
-COMPONENT_NAMES = u.available_models(exp_dir)
-COMPONENTS = udata.get_components(exp_dir, COMPONENT_NAMES)
+COMPONENTS = [udata.Component(exp_dir, name) for name in u.available_models(exp_dir)]
 ACTUAL_DL = udata.ActualDataLoader(data_dir)
 
 REGIONS = ["nat", *[f"hhs{i}" for i in range(1, 11)], None]
-TARGET_NAMES = [1, 2, 3, 4, "peak", "peak_wk", "onset_wk"]
+TARGETS = [udata.Target(t) for t in [1, 2, 3, 4, "peak", "peak_wk", "onset_wk"]]
 
 
 class Model:
@@ -81,7 +79,7 @@ def dem_models(weight_files: str) -> List[Model]:
 
 
 # Entry point
-for target in tqdm([udata.Target(t) for t in TARGET_NAMES]):
+for target in tqdm(TARGETS):
     y, Xs, yi = target.get_testing_data(ACTUAL_DL, COMPONENTS, None, TEST_SPLIT_THRESH)
 
     for model in dem_models(snakemake.input.w_files):

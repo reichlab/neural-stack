@@ -2,17 +2,21 @@
 Test for true targets
 """
 
-import src.utils.data as udata
-import src.utils.misc as u
+import sys
+sys.path.append("./src")
+
+import utils.data as udata
+import utils.misc as u
 import pandas as pd
 import numpy as np
-from operator import eq
 
 
 def test_peak():
     adl = udata.ActualDataLoader("./data")
     aidx, adata = adl.get()
-    y, Xs, yi = udata.get_seasonal_training_data("peak", None, adl, [])
+
+    target = udata.Target("peak")
+    y, Xs, yi = target.get_training_data(adl, [], None, 222222)
 
     assert all(aidx["epiweek"] == [i[0] for i in yi])
     assert all(aidx["region"] == [i[1] for i in yi])
@@ -22,7 +26,9 @@ def test_peak():
 def test_peak_wk():
     adl = udata.ActualDataLoader("./data")
     aidx, adata = adl.get()
-    y, Xs, yi = udata.get_seasonal_training_data("peak_wk", None, adl, [])
+
+    target = udata.Target("peak_wk")
+    y, Xs, yi = target.get_training_data(adl, [], None, 222222)
 
     assert all(aidx["epiweek"] == [i[0] for i in yi])
     assert all(aidx["region"] == [i[1] for i in yi])
@@ -36,7 +42,9 @@ def test_peak_wk():
 def test_onset_wk():
     adl = udata.ActualDataLoader("./data")
     aidx, adata = adl.get()
-    y, Xs, yi = udata.get_seasonal_training_data("onset_wk", None, adl, [])
+
+    target = udata.Target("onset_wk")
+    y, Xs, yi = target.get_training_data(adl, [], None, 222222)
 
     # Check if all onset weeks of same season are the same
     seasons = [u.epiweek_to_season(i[0]) for i in yi]

@@ -7,43 +7,43 @@ import pandas as pd
 import os
 import pymmwr
 from collections import namedtuple
-from typing import List
+from typing import List, Tuple
 from utils import misc as u
+from functools import lru_cache
 
 
-Component = namedtuple("Component", ["name", "loader"])
-
-
-class ComponentDataLoader:
+class Component:
     """
     Data loader for component models
     """
 
-    def __init__(self, exp_dir: str, model_identifier: str) -> None:
-        self.root_path = os.path.join(exp_dir, model_identifier)
+    def __init__(self, exp_dir: str, name: str) -> None:
+        self.name = name
+        self.root_path = os.path.join(exp_dir, name)
         self.index = pd.read_csv(os.path.join(self.root_path, "index.csv"))
 
-    def get(self, data_identifier, region_identifier=None, epiweek_range=None):
+    @lru_cache(maxsize=128)
+    def get(self, target_name, region=None, epiweek_range=None):
         """
-        Return data for asked data_identifier along with index
+        Return data for asked target_name along with index
 
         Parameters
         ----------
-        data_identifier : str | int
+        target_name : str | int
             Identifier for the target to load
-        region_identifier : str | None
+        region : str | None
             Short region code (nat, hhs2 ...) or None for all regions
-        epiweek_range : List[int]
+        epiweek_range : Tuple[int]
             List of two ints representing the range of epiweeks (inclusive) to get data for
         """
 
-        data = np.loadtxt(os.path.join(self.root_path, f"{data_identifier}.np.gz"))
+        data = np.loadtxt(os.path.join(self.root_path, f"{target_name}.np.gz"))
 
         # All true selection
         selection = self.index["epiweek"] > 0
         narrowing = False
-        if region_identifier is not None:
-            selection = selection & (self.index["region"] == region_identifier)
+        if region is not None:
+            selection = selection & (self.index["region"] == region)
             narrowing = True
 
         if epiweek_range is not None:
@@ -54,14 +54,6 @@ class ComponentDataLoader:
             return [self.index[selection].reset_index(drop=True), data[selection]]
         else:
             return [self.index, data]
-
-
-def get_components(data_dir: str, names: List[str]) -> List[Component]:
-    """
-    Return simple wrapper over component loader using provided names
-    """
-
-    return [Component(name=name, loader=ComponentDataLoader(data_dir, name)) for name in names]
 
 
 class ActualDataLoader:
@@ -75,15 +67,16 @@ class ActualDataLoader:
         self.baseline = pd.read_csv(os.path.join(self.root_path, "baseline.csv"))
         self.index = self._df[["epiweek", "region"]]
 
-    def get(self, week_shift=None, region_identifier=None):
+    @lru_cache(maxsize=128)
+    def get(self, week_shift=None, region=None):
         """
         Return index and data for given region. Return all if the region is
         None. week_shift of x gives wili of 'wk + x' for each epiweek 'wk'.
         """
 
         # Subset by region
-        if region_identifier:
-            selection = self.index["region"] == region_identifier
+        if region is not None:
+            selection = self.index["region"] == region
             index = self.index[selection].reset_index(drop=True)
             wili = self._df[selection]["wili"].values
         else:
@@ -114,7 +107,7 @@ class ActualDataLoader:
             return [index, wili]
 
 
-def filter_common_indices(indices):
+def _filter_common_indices(indices):
     """
     Return a list of integers for each of the indices such that slicing using
     these lists gives us dataframes matching the epiweek and regions in all the
@@ -134,18 +127,15 @@ def filter_common_indices(indices):
     return list(merged.drop(merge_on, axis=1).values.T)
 
 
-def get_seasonal_training_data(target, region_identifier, actual_data_loader, component_data_loaders):
+def _get_seasonal_training_data(target_name: str, region, actual_data_loader: ActualDataLoader, components: List[Component]):
     """
     Return well formed y, Xs and yi for asked week and region
     """
 
-    actual_idx, actual_data = actual_data_loader.get(region_identifier=region_identifier)
-    component_idx_data = [
-        component_data_loader.get(target, region_identifier=region_identifier)
-        for component_data_loader in component_data_loaders
-    ]
+    actual_idx, actual_data = actual_data_loader.get(region=region)
+    component_idx_data = [c.loader.get(target_name, region=region) for c in components]
 
-    filter_indices = filter_common_indices([actual_idx, *[c[0] for c in component_idx_data]])
+    filter_indices = _filter_common_indices([actual_idx, *[c[0] for c in component_idx_data]])
 
     true_df = actual_idx.copy().iloc[filter_indices[0], :]
     true_df["wili"] = actual_data[filter_indices[0]]
@@ -171,27 +161,27 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
             return None
 
     y = []
-    if target == "peak":
+    if target_name == "peak":
         y = peaks_df["peak"].values
-    elif target == "peak_wk":
+    elif target_name == "peak_wk":
         y = np.array([u.epiweek_to_model_week(ew) for ew in peaks_df["peak_wk"].values])
-    elif target == "onset_wk":
+    elif target_name == "onset_wk":
         onset_wks = {
             "region": [],
             "season": [],
             "onset_wk": []
         }
         for name, group in peaks_df.groupby(["season", "region"]):
-            season, region = name
+            season, reg = name
             onset_wks["season"].append(season)
-            onset_wks["region"].append(region)
+            onset_wks["region"].append(reg)
             onset_wks["onset_wk"].append(_get_onset_wk(group))
         onset_wks = pd.DataFrame(onset_wks)
 
         onset_output = peaks_df.merge(onset_wks, on=["season", "region"]).sort_values("order")["onset_wk"].values
         y = np.array([u.epiweek_to_model_week(ew) for ew in onset_output])
     else:
-        raise Exception(f"Unknown target {target}")
+        raise Exception(f"Unknown target {target_name}")
 
     # NOTE:
     # Expecting 131 bins for peak
@@ -199,7 +189,7 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     # 33 for peak_wk
     Xs = []
     for i in range(len(component_idx_data)):
-        if target == "peak":
+        if target_name == "peak":
             # Skip last bin [13.0, 100]
             Xs.append(component_idx_data[i][1][filter_indices[i + 1]][:, :-1])
         else:
@@ -208,29 +198,15 @@ def get_seasonal_training_data(target, region_identifier, actual_data_loader, co
     return y, Xs, peaks_df[["epiweek", "region"]].as_matrix()
 
 
-def get_week_ahead_training_data(week_ahead, region_identifier, actual_data_loader, component_data_loaders):
+def _get_week_ahead_training_data(week_ahead: int, region, actual_data_loader: ActualDataLoader, components: List[Component]):
     """
     Return well formed y, Xs and yi for asked week and region
-
-    Parameters
-    -----------
-    week_ahead : int
-        A positive value of week ahead number, e.g. 1 if we are predicting one
-        week ahead
-    region_identifier : str
-        A string representation for region (like "nat") or None if all data is
-        needed
-    actual_data_loader : ActualDataLoader
-    component_data_loaders : List[ComponentDataLoader]
     """
 
-    actual_idx, actual_data = actual_data_loader.get(week_shift=week_ahead, region_identifier=region_identifier)
-    component_idx_data = [
-        component_data_loader.get(week_ahead, region_identifier=region_identifier)
-        for component_data_loader in component_data_loaders
-    ]
+    actual_idx, actual_data = actual_data_loader.get(week_shift=week_ahead, region=region)
+    component_idx_data = [c.loader.get(week_ahead, region=region) for c in components]
 
-    filter_indices = filter_common_indices([actual_idx, *[c[0] for c in component_idx_data]])
+    filter_indices = _filter_common_indices([actual_idx, *[c[0] for c in component_idx_data]])
 
     y = actual_data[filter_indices[0]]
 
@@ -277,10 +253,10 @@ class Target:
     @property
     def getter_fn(self):
         if self.type == "weekly":
-            return get_week_ahead_training_data
+            return _get_week_ahead_training_data
 
         else:
-            return get_seasonal_training_data
+            return _get_seasonal_training_data
 
     def _get_all_data(self, actual_dl, components, region):
         return self.getter_fn(
@@ -288,7 +264,7 @@ class Target:
             actual_dl, [c.loader for c in components]
         )
 
-    def get_training_data(self, actual_dl, components, region, split_thresh):
+    def get_training_data(self, actual_dl: ActualDataLoader, components: List[Component], region, split_thresh: int):
         """
         Return training y, Xs, yi for target and all regions
         """
@@ -297,7 +273,7 @@ class Target:
         train_indices = yi[:, 0] < split_thresh
         return y[train_indices], [X[train_indices] for X in Xs], yi[train_indices]
 
-    def get_testing_data(self, actual_dl, components, region, split_thresh):
+    def get_testing_data(self, actual_dl: ActualDataLoader, components: List[Component], region, split_thresh: int):
         """
         Return testing y, Xs, yi for target and all regions
         """
