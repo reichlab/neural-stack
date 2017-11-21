@@ -154,7 +154,7 @@ def generate_target_type_weights(output_file: str):
 
         weights["model"] += [c.name for c in COMPONENTS]
         weights["weight"] += list(models.dem(np.exp(scores)))
-        weights["target"] += [target_type for c in COMPONENTS]
+        weights["target_type"] += [target_type for c in COMPONENTS]
 
     for target_type in ["weekly", "seasonal"]:
         _append_target_type_weight(target_type)
