@@ -10,8 +10,29 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 from tqdm import tqdm
 from typing import Dict
+from glob import glob
 from sklearn.model_selection import KFold
 from warnings import warn
+
+
+def get_scores(results_dir, exp_name, target):
+    """
+    Return a dataframe of scores for given specifications
+    """
+
+    files = glob(os.path.join(results_dir, exp_name, target, "*.csv"))
+    df = pd.DataFrame({
+        "region": [],
+        "model": [],
+        "score": []
+    })
+
+    for f in files:
+        scores = pd.read_csv(f)
+        scores["model"] = os.path.basename(os.path.splitext(f)[0])
+        df = pd.concat([df, scores], ignore_index=True)
+
+    return df
 
 
 def available_models(exp_dir):
