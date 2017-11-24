@@ -205,10 +205,10 @@ def cv_report(cv_metadata):
     val_losses = [it["validation_loss"] for it in cv_metadata]
 
     return pd.DataFrame({
-        "epochs": lens + [np.mean(lens)],
+        "epochs": lens + [np.median(lens)],
         "train_loss": losses + [np.mean(losses)],
         "val_loss": val_losses + [np.mean(val_losses)]
-    }, index=["it-" + str(i) for i in range(1, len(cv_metadata) + 1)] + ["mean"])
+    }, index=["it-" + str(i) for i in range(1, len(cv_metadata) + 1)] + ["mean (median for epochs)"])
 
 
 def cv_plot(cv_metadata):
