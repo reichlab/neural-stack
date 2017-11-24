@@ -28,6 +28,8 @@ tree -L 2
 │   ├── peak
 │   └── peak_wk
 └── README.org
+
+16 directories, 1 file
 #+end_example
 
 Each target directory contains one score file per model with score per region.
@@ -49,4 +51,11 @@ cat ./lab/onset_wk/dem-equal.csv
 | hhs8   |  2.216170024509792 |
 | hhs9   |  1.892005129339573 |
 | hhs10  | 2.2410681983963907 |
-| all    | 2.2410681983963907 |
+| all    | 1.6386593214597402 |
+
+
+#+BEGIN_QUOTE
+Note that there are non csv files in the directory too. These are mostly .txt
+dumps of details regarding neural network training process. If you are trying to
+read in the results, glob for *.csv only.
+#+END_QUOTE
