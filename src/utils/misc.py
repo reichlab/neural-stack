@@ -173,7 +173,7 @@ def cv_train_loso(gen_model, train_model, X, y, yi):
         model = gen_model()
         train_indices = np.array([i != season for i in seasons])
 
-        if type(X) == list:
+        if type(X) == list or type(X) == tuple:
             # Model with multiple input
             train_data = ([x_sub[train_indices] for x_sub in X], y[train_indices])
             val_data = ([x_sub[~train_indices] for x_sub in X], y[~train_indices])
