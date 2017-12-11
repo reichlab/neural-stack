@@ -15,9 +15,6 @@ cd neural-stack
 pip install pipenv
 pipenv install
 
-# Collect latest actual data
-pipenv run snakemake get_actual_data
-
 # Preprocess data for the two experiments
 # See last section of this readme for experiment description
 pipenv run snakemake get_lab_data
