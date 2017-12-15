@@ -161,3 +161,15 @@ Experiment name ~lab~
 - NN training/selection: Leave one season out cross validation is used
   hyperparameter tuning.
 - ensembles to compare: EW, CW, FW-reg-w (?), NN1, NN2
+
+* Extensions
+
+For the ensemble setting (without working on the main time series)
+
+1. New /better-for-this-case/ models?
+   - Recurrent networks on component input time series
+   - Bayesian NN
+2. Tuning, tweaking the parameters. /Like always/
+
+A better thing might be to train a model on the main wili time series itself
+utilizing the infrastructure from this repo.
