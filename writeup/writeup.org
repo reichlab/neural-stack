@@ -14,7 +14,7 @@ We present neural network based ensemble models for forecasting influenza using
 predictions in the form of probability distributions from a set of component models.
 The question we try to learn an answer for is `can we exploit the flexibility of neural
 networks to create a better ensemble than possible by a weighted averaging ensemble?'.
-On two of the models we build (mixture density and convolution based) the results are
+On the two models we built (mixture density and convolution based) the results are
 mostly negative for the original question and mixed as far as the absolute benefit of
 the ensemble is considered. We present some reasoning behind these results, and steps
 to take for a better neural model.
@@ -67,7 +67,7 @@ For wili% values, the output is a normalized vector of size 130 representing
 probabilities of wili% lying in bins of size 0.1 starting from 0.0, i.e. $[0.0,
 0.1)$, $[0.1, 0.2)$, \ldots. See figure ref:fig:dist for an example.
 
-#+BEGIN_SRC python :session :exports results :results file
+#+BEGIN_SRC python :session :eval never-export :exports results :results file
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -262,11 +262,11 @@ We evaluate the two models in two different settings. Each setting has the same
 set of targets to predict but different number of component models and training
 seasons.
 
-1. Collaborative ensemble setting: Here we use 21 component models from the
+1. /Collaborative/ ensemble setting: Here we use 21 component models from the
    FluSightNetwork collaboration
    [fn::https://github.com/FluSightNetwork/cdc-flusight-ensemble] which provides
    us data for 4 training and 3 test seasons.
-2. Lab ensemble setting: This uses 3 component models from Reich lab and has
+2. /Lab/ ensemble setting: This uses 3 component models from Reich lab and has
    data for 14 training and 5 test seasons.
 
 We train separate models for each region and target. For both the settings, we
@@ -346,13 +346,18 @@ results in the next section.
 
 * Discussion
 
+In this work, we presented neural network based ensemble models for influenza
+prediction with the intent of automatically learning all the needed
+transformations of the components' output without learning intermediate weights.
+We also compared these models with weight based models.
+
 In all the experiments, simple weighing based ensembles consistently performed
 good while the neural models had mixed results. Even though one reasonable line
 of reasoning is lack of lots of training data (we have /just/ 52/53 weeks in a
 year), a more useful argument is lack of proper tuning and analysis. Neural
 networks based models are flexible enough to degenerate into simpler models like
-the weighted averaging ensembles without going very /deep/ (which might need
-more instances to fit).
+the weighted averaging ensembles without going very /deep/ (which might need more
+instances to fit).
 
 The original aim of exploring ensembles beyond simple weighing using neural
 models can be made less /black-boxy/ by analyzing how exactly the components are
@@ -389,7 +394,5 @@ from here:
 Another unexplored possibility in the network design is of using recurrent
 components/layers which are helpful for modeling time based dependencies by
 maintaining states inside the network.
-
-* Conclusions
 
 \printbibliography{}
