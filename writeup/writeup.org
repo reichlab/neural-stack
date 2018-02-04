@@ -7,6 +7,7 @@
 #+LATEX_HEADER: \usepackage{float}
 #+LATEX_HEADER: \usepackage{biblatex}
 #+LATEX_HEADER: \usepackage[caption=false]{subfig}
+#+LATEX_HEADER: \addbibresource{~/library.bib}
 
 \begin{abstract}
 We present neural network based ensemble models for forecasting influenza using
@@ -21,15 +22,36 @@ to take for a better neural model.
 
 * Introduction
 
-[ Some blurb here ]
+#+BEGIN_EXAMPLE
+Things to add/discuss:
+- Importance of ensemble?
+- Refer to earlier general influenza forecasting works?
+- Refer to ensemble works? Which ones? There is one from lab, a couple more
+  which are referenced in that paper.
+#+END_EXAMPLE
 
-Few earlier attempts to create ensemble for this task focus on learning weights
-for the components. In this work we focus exclusively on creating models which
-learn the ensemble transformation /end-to-end/, i.e. without any intermediate
-weight estimation step. To this end, we employ two neural network based models,
-test their performance on publicly available influenza data and present the
-results comparing them with weight based ensembles.
+Ensembling a set of component models provide a way to extract better performance
+than any of the components in terms of predictive accuracy and/or stability. In
+an averaging based approach, weights are learned for the components and the
+weighted average of component outputs is considered as the output from ensemble.
+With a decent aggregation of diverse models, an ensemble tend to provide more
+accurate predictions cite:dietterich2000ensemble.
 
+With the variety of approaches used, the problem of modeling and forecasting
+influenza is a task well suited for an ensemble treatment. Few earlier ensembles
+for similar task of disease forecasting focus on learning weights for the
+components
+cite:ray2017prediction,yamana2016superensemble,chakraborty2014forecasting. In
+this work we focus exclusively on creating models which learn the ensemble
+transformation /end-to-end/, i.e. without any intermediate weight estimation step.
+To this end, we employ two neural network based models, test their performance
+on publicly available influenza data and present the results comparing them with
+weight based ensembles.
+
+Recent works in neural networks have made them very practical tools to model
+complex non-linear transformations. The flexibility provided by the
+hyper-parameters in these models allow them to do well on hard problems like
+image recognition, as well as easy problems needing basic affine transformation.
 To the best of our knowledge, neural networks have not been employed for
 creating /ensemble models/ predicting influenza. However, there is a recent work
 cite:volkova2017forecasting where Twitter data, along with the influenza data,
@@ -408,4 +430,4 @@ Another unexplored possibility in the network design is of using recurrent
 components/layers which are helpful for modeling time based dependencies by
 maintaining states inside the network.
 
-bibliography:~/library.bib
+\printbibliography{}
