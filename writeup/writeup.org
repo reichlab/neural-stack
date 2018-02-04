@@ -7,7 +7,6 @@
 #+LATEX_HEADER: \usepackage{float}
 #+LATEX_HEADER: \usepackage{biblatex}
 #+LATEX_HEADER: \usepackage[caption=false]{subfig}
-#+LATEX_HEADER: \addbibresource{~/library.bib}
 
 \begin{abstract}
 We present neural network based ensemble models for forecasting influenza using
@@ -21,7 +20,21 @@ to take for a better neural model.
 \end{abstract}
 
 * Introduction
-[ /What did you do? Why?/ ]
+
+[ Some blurb here ]
+
+Few earlier attempts to create ensemble for this task focus on learning weights
+for the components. In this work we focus exclusively on creating models which
+learn the ensemble transformation /end-to-end/, i.e. without any intermediate
+weight estimation step. To this end, we employ two neural network based models,
+test their performance on publicly available influenza data and present the
+results comparing them with weight based ensembles.
+
+To the best of our knowledge, neural networks have not been employed for
+creating /ensemble models/ predicting influenza. However, there is a recent work
+cite:volkova2017forecasting where Twitter data, along with the influenza data,
+is used for training an LSTM (Long Short Term Memory) neural network for
+forecasting purpose.
 
 * Methods
 In this section, we describe the dataset used, experimental setup and details of
@@ -395,4 +408,4 @@ Another unexplored possibility in the network design is of using recurrent
 components/layers which are helpful for modeling time based dependencies by
 maintaining states inside the network.
 
-\printbibliography{}
+bibliography:~/library.bib
