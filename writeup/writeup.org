@@ -7,7 +7,7 @@
 #+LATEX_HEADER: \usepackage{float}
 #+LATEX_HEADER: \usepackage{biblatex}
 #+LATEX_HEADER: \usepackage[caption=false]{subfig}
-#+LATEX_HEADER: \addbibresource{~/library.bib}
+#+LATEX_HEADER: \addbibresource{bibliography.bib}
 
 \begin{abstract}
 We present neural network based ensemble models for forecasting influenza using
@@ -24,8 +24,8 @@ to take for a better neural model.
 
 #+BEGIN_EXAMPLE
 Things to add/discuss:
-- Importance of ensemble?
-- Refer to earlier general influenza forecasting works?
+- Do we need to add more stuff highlighting importance of ensemble?
+- Should we add more references to earlier work in general disease forecasting?
 - Refer to ensemble works? Which ones? There is one from lab, a couple more
   which are referenced in that paper.
 #+END_EXAMPLE
