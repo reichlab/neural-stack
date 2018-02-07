@@ -1,0 +1,111 @@
+#+TITLE: Measuring model similarities
+#+AUTHOR: Abhinav Tushar
+
+Here we will try to see how similar are predictions from each of the component
+models. Taking a mean /might/ give us a general sense of similarities among
+models. We will be focusing on one setting and one target as of now.
+
+#+BEGIN_SRC python :session :eval never-export :exports both :results none
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+#+END_SRC
+
+* Collaborative setting
+Here we have data from 21 models. All the models have their predicted
+distributions in the same order providing predictions for a certain epiweek /and/
+a certain region.
+
+** ~1-ahead~ prediction
+This target has 131 bins.
+
+#+BEGIN_SRC python :session :eval never-export :exports both :results output
+  adist = np.loadtxt("../data/processed/collaborative/CU-EAKFC_SIRS/1.np.gz")
+  bdist = np.loadtxt("../data/processed/collaborative/CU-BMA/1.np.gz")
+  cdist = np.loadtxt("../data/processed/collaborative/ReichLab-KCDE/1.np.gz")
+  epsilon = np.finfo(adist.dtype).eps
+
+  # Replace zeros with epsilon
+  adist[adist == 0] = epsilon
+  bdist[bdist == 0] = epsilon
+  cdist[cdist == 0] = epsilon
+#+END_SRC
+
+#+RESULTS:
+
+Now we define the similarity metric (not exactly a metric since this is KL
+Divergence) which is the mean of KL divergences between two models' predictions.
+
+Some other distances to consider:
+1. Total variation distance. Will this be sufficient?
+2. Bhattacharyya distance. One problem is that it doesn't tell whether a certain
+   non overlapping pair is farther than another such pair.
+
+#+BEGIN_SRC python :session :eval never-export :exports both :results output
+  def sim_kld(adist, bdist):
+      """
+      Return mean kl divergence between the two predictions.
+      Assume that the distributions don't have zeros in them.
+      """
+
+      divergences = np.sum(adist * (np.log(adist) - np.log(bdist)), axis=1)
+
+      return np.mean(divergences)
+#+END_SRC
+
+#+RESULTS:
+
+Load all the models with correct number of items:
+
+#+BEGIN_SRC python :session :eval never-export :exports both :results output
+  model_names = os.listdir("../data/processed/collaborative")
+  # Filtering out the one with incomplete data
+  model_names.remove("CU-EAKFC_SEIRS")
+
+  # Get predictions for 1-ahead
+  predictions = []
+  for name in model_names:
+      mat = np.loadtxt(f"../data/processed/collaborative/{name}/1.np.gz")
+      mat[mat == 0] = epsilon
+      predictions.append(mat.copy())
+#+END_SRC
+
+#+RESULTS:
+
+Lets verify that all the models have correct shape
+#+BEGIN_SRC python :session :eval never-export :exports both :results output
+  print(all([p.shape[0] == 2552 for p in predictions]))
+#+END_SRC
+
+#+RESULTS:
+: True
+
+Alright.
+
+#+BEGIN_SRC python :session :eval never-export :exports both :results file
+  def plot_sims(names, predictions, sim_fn):
+      """
+      Plot a matrix heatmap of similarities
+      """
+
+      n = len(names)
+      sims = np.zeros((n, n))
+
+      for i, ap in enumerate(predictions):
+          for j, bp in enumerate(predictions):
+              sims[i, j] = sim_fn(ap, bp)
+
+      plt.figure(figsize=(10, 10))
+      plt.imshow(sims / sims.max(), cmap="hot")
+      plt.xticks(range(n), names, rotation="vertical")
+      plt.yticks(range(n), names)
+      plt.colorbar()
+      plt.tight_layout()
+      plt.savefig("sims.png")
+
+  plot_sims(model_names, predictions, sim_kld)
+  "sims.png"
+#+END_SRC
+
+#+RESULTS:
+[[file:sims.png]]
