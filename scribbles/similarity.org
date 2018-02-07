@@ -20,15 +20,8 @@ a certain region.
 This target has 131 bins.
 
 #+BEGIN_SRC python :session :eval never-export :exports both :results output
-  adist = np.loadtxt("../data/processed/collaborative/CU-EAKFC_SIRS/1.np.gz")
-  bdist = np.loadtxt("../data/processed/collaborative/CU-BMA/1.np.gz")
-  cdist = np.loadtxt("../data/processed/collaborative/ReichLab-KCDE/1.np.gz")
+  adist = np.loadtxt("../data/processed/collaborative/CU-BMA/1.np.gz")
   epsilon = np.finfo(adist.dtype).eps
-
-  # Replace zeros with epsilon
-  adist[adist == 0] = epsilon
-  bdist[bdist == 0] = epsilon
-  cdist[cdist == 0] = epsilon
 #+END_SRC
 
 #+RESULTS:
@@ -69,7 +62,7 @@ metric)
 Load all the models with correct number of items:
 
 #+BEGIN_SRC python :session :eval never-export :exports both :results output
-  model_names = os.listdir("../data/processed/collaborative")
+  model_names = sorted(os.listdir("../data/processed/collaborative"))
   # Filtering out the one with incomplete data
   model_names.remove("CU-EAKFC_SEIRS")
 
