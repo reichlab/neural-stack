@@ -3,7 +3,7 @@
 
 Here we will try to see how similar are predictions from each of the component
 models. Taking a mean /might/ give us a general sense of similarities among
-models. We will be focusing on one setting and one target as of now.
+models. We will be focusing on one setting as of now.
 
 #+BEGIN_SRC python :session :eval never-export :exports both :results none
 import numpy as np
@@ -73,19 +73,27 @@ Load all the models with correct number of items:
   # Filtering out the one with incomplete data
   model_names.remove("CU-EAKFC_SEIRS")
 
-  # Get predictions for 1-ahead
-  predictions = []
-  for name in model_names:
-      mat = np.loadtxt(f"../data/processed/collaborative/{name}/1.np.gz")
-      mat[mat == 0] = epsilon
-      predictions.append(mat.copy())
+  def get_predictions(target_id):
+      """
+      Return predictions for all models for specified target
+      """
+
+      predictions = []
+      for name in model_names:
+          mat = np.loadtxt(f"../data/processed/collaborative/{name}/{target_id}.np.gz")
+          mat[mat == 0] = epsilon
+          predictions.append(mat.copy())
+
+      return predictions
+
+  one_ahead_predictions = get_predictions(1)
 #+END_SRC
 
 #+RESULTS:
 
 Lets verify that all the models have correct shape
 #+BEGIN_SRC python :session :eval never-export :exports both :results output
-  print(all([p.shape[0] == 2552 for p in predictions]))
+  print(all([p.shape[0] == 2552 for p in one_ahead_predictions]))
 #+END_SRC
 
 #+RESULTS:
@@ -94,7 +102,7 @@ Lets verify that all the models have correct shape
 Alright.
 
 #+BEGIN_SRC python :session :eval never-export :exports both :results file
-  def plot_sims(names, predictions, sim_fn, output):
+  def plot_sims(names, predictions, sim_fn, output, title):
       """
       Plot a matrix heatmap of similarities
       """
@@ -110,13 +118,73 @@ Alright.
       plt.imshow(sims / sims.max(), cmap="hot")
       plt.xticks(range(n), names, rotation="vertical")
       plt.yticks(range(n), names)
+      plt.title(title)
       plt.colorbar()
       plt.tight_layout()
       plt.savefig(output)
 
-  plot_sims(model_names, predictions, sim_hellinger, "hellinger.png")
-  "hellinger.png"
+  plot_sims(model_names, one_ahead_predictions, sim_hellinger, "similarity/1-ahead.png", "1-ahead mean hellinger distances")
+  "similarity/1-ahead.png"
 #+END_SRC
 
 #+RESULTS:
-[[file:hellinger.png]]
+[[file:similarity/1-ahead.png]]
+
+** All other targets
+
+#+BEGIN_SRC python :session :eval never-export :exports both :results output
+  def plot_sims(names, predictions, sim_fn, output, title):
+      """
+      Plot a matrix heatmap of similarities
+      """
+
+      n = len(names)
+      sims = np.zeros((n, n))
+
+      for i, ap in enumerate(predictions):
+          for j, bp in enumerate(predictions):
+              sims[i, j] = sim_fn(ap, bp)
+
+      plt.figure(figsize=(10, 10))
+      plt.imshow(sims / sims.max(), cmap="hot")
+      plt.xticks(range(n), names, rotation="vertical")
+      plt.yticks(range(n), names)
+      plt.title(title)
+      plt.colorbar()
+      plt.tight_layout()
+      plt.savefig(output)
+
+  plot_sims(model_names, get_predictions(2), sim_hellinger, "similarity/2-ahead.png", "2-ahead mean hellinger distances")
+  plot_sims(model_names, get_predictions(3), sim_hellinger, "similarity/3-ahead.png", "3-ahead mean hellinger distances")
+  plot_sims(model_names, get_predictions(4), sim_hellinger, "similarity/4-ahead.png", "4-ahead mean hellinger distances")
+  plot_sims(model_names, get_predictions("onset_wk"), sim_hellinger, "similarity/onset-wk.png", "Onset week mean hellinger distances")
+  plot_sims(model_names, get_predictions("peak"), sim_hellinger, "similarity/peak.png", "Peak mean hellinger distances")
+  plot_sims(model_names, get_predictions("peak_wk"), sim_hellinger, "similarity/peak-wk.png", "Peak week mean hellinger distances")
+#+END_SRC
+
+#+RESULTS:
+
+*** ~2-ahead~
+
+[[file:./similarity/2-ahead.png]]
+
+*** ~3-ahead~
+
+[[file:./similarity/3-ahead.png]]
+
+*** ~4-ahead~
+
+[[file:./similarity/4-ahead.png]]
+
+*** ~onset-week~
+
+[[file:./similarity/onset-wk.png]]
+
+*** ~peak~
+
+[[file:./similarity/peak.png]]
+
+*** ~peak-week~
+
+[[file:./similarity/peak-wk.png]]
+
