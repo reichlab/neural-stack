@@ -33,13 +33,8 @@ This target has 131 bins.
 
 #+RESULTS:
 
-Now we define the similarity metric (not exactly a metric since this is KL
-Divergence) which is the mean of KL divergences between two models' predictions.
-
-Some other distances to consider:
-1. Total variation distance. Will this be sufficient?
-2. Bhattacharyya distance. One problem is that it doesn't tell whether a certain
-   non overlapping pair is farther than another such pair.
+Now we define the similarity metric (not exactly since KL Divergence is not a
+metric)
 
 #+BEGIN_SRC python :session :eval never-export :exports both :results output
   def sim_kld(adist, bdist):
@@ -51,6 +46,22 @@ Some other distances to consider:
       divergences = np.sum(adist * (np.log(adist) - np.log(bdist)), axis=1)
 
       return np.mean(divergences)
+
+  def sim_tv(adist, bdist):
+      """
+      Mean total variation distance between dists
+      """
+
+      raise NotImplementedError()
+
+  def sim_hellinger(adist, bdist):
+      """
+      Mean hellinger distance. Obeys triangle inequality and is symmetric.
+      """
+
+      bhattacharyya_coeffs = np.sum(np.sqrt((adist * bdist).clip(max=1, min=0)), axis=1)
+
+      return np.mean(np.sqrt((1 - bhattacharyya_coeffs).clip(max=1, min=0)))
 #+END_SRC
 
 #+RESULTS:
@@ -83,7 +94,7 @@ Lets verify that all the models have correct shape
 Alright.
 
 #+BEGIN_SRC python :session :eval never-export :exports both :results file
-  def plot_sims(names, predictions, sim_fn):
+  def plot_sims(names, predictions, sim_fn, output):
       """
       Plot a matrix heatmap of similarities
       """
@@ -101,11 +112,11 @@ Alright.
       plt.yticks(range(n), names)
       plt.colorbar()
       plt.tight_layout()
-      plt.savefig("sims.png")
+      plt.savefig(output)
 
-  plot_sims(model_names, predictions, sim_kld)
-  "sims.png"
+  plot_sims(model_names, predictions, sim_hellinger, "hellinger.png")
+  "hellinger.png"
 #+END_SRC
 
 #+RESULTS:
-[[file:sims.png]]
+[[file:hellinger.png]]
