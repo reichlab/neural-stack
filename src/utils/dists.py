@@ -163,7 +163,7 @@ def shift_dists(dists,
         # elif shift < 0:
         #     output[i, -shift:] = np.zeros((shift, ))
 
-    # output /= output.sum(axis=0) + K.epsilon()
+    output /= output.sum(axis=0) + K.epsilon()
     return output
 
 
