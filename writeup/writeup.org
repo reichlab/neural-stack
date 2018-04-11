@@ -2,6 +2,7 @@
 #+OPTIONS: author:nil
 #+OPTIONS: toc:nil
 
+#+DATE:
 #+LATEX_CLASS: article
 #+LATEX_HEADER: \usepackage{tikz}
 #+LATEX_HEADER: \usepackage{float}
@@ -13,8 +14,8 @@
 We present neural network based ensemble models for forecasting influenza using
 predictions in the form of probability distributions from a set of component models.
 The question we try to learn an answer for is `can we exploit the flexibility of neural
-networks to create a better ensemble than possible by a weighted averaging ensemble?'.
-On the two models we built (mixture density and convolution based) the results are
+networks to create a better ensemble than possible by a weighted averaging ensemble?'
+On the two models we studied (mixture density and convolution based) the results are
 mostly negative for the original question and mixed as far as the absolute benefit of
 the ensemble is considered. We present some reasoning behind these results, and steps
 to take for a better neural model.
@@ -30,30 +31,41 @@ Things to add/discuss:
   which are referenced in that paper.
 #+END_EXAMPLE
 
-Ensembling a set of component models provide a way to extract better performance
-than any of the components in terms of predictive accuracy and/or stability. In
-an averaging based approach, weights are learned for the components and the
-weighted average of component outputs is considered as the output from ensemble.
-With a decent aggregation of diverse models, an ensemble tend to provide more
-accurate predictions cite:dietterich2000ensemble.
+Ensembling a set of component models [fn::Component models are standalone models
+trying to solve the same problem, possibly with different approaches.] provides
+a way to extract better performance than any of the components in terms of
+predictive accuracy and/or stability. In a general weighted averaging approach,
+weights are learned for the components and the ensemble outputs the weighted
+average of component outputs. With a decent aggregation of diverse models, an
+ensemble like this tends to provide more accurate predictions
+cite:dietterich2000ensemble.
 
 With the variety of approaches used, the problem of modeling and forecasting
-influenza is a task well suited for an ensemble treatment. Few earlier ensembles
-for similar task of disease forecasting focus on learning weights for the
-components
-cite:ray2017prediction,yamana2016superensemble,chakraborty2014forecasting. In
-this work we focus exclusively on creating models which learn the ensemble
+influenza is a task well suited for an ensemble treatment. Some earlier
+ensembles for similar task of disease forecasting focus on learning weights for
+the components
+cite:ray2017prediction,yamana2016superensemble,chakraborty2014forecasting.
+Although they have nice interpretability properties, weight based ensembles can
+have limitations depending on the space of predictions. As an example, suppose
+that the valid range of prediction is $[0, 1]$ while the component models only
+cover the range $[0.3, 0.8]$. In this situation, a weighted ensemble will just
+produce a convex combination which will miss the numbers outside the extremes.
+Situations like these may be handled on a case by case basis. For example, in
+the above case, two dummy component models maybe added to the mix which always
+predict 0 and 1 respectively.
+
+In this work we focus exclusively on creating models which learn the ensemble
 transformation /end-to-end/, i.e. without any intermediate weight estimation step.
 To this end, we employ two neural network based models, test their performance
 on publicly available influenza data and present the results comparing them with
 weight based ensembles.
 
-Recent works in neural networks have made them very practical tools to model
-complex non-linear transformations. The flexibility provided by the
-hyper-parameters in these models allow them to do well on hard problems like
-image recognition, as well as easy problems needing basic affine transformation.
-To the best of our knowledge, neural networks have not been employed for
-creating /ensemble models/ predicting influenza. However, there is a recent work
+Recent works in neural networks have made them practical tools for modeling
+complex non-linear transformations. The flexibility provided by the hyper
+parameters in these models allows them to adapt well to hard problems like image
+recognition, as well to easy problems needing just an affine transformation. To
+the best of our knowledge, neural networks have not been employed for creating
+/ensemble models/ predicting influenza. However, there is a recent work
 cite:volkova2017forecasting where Twitter data, along with the influenza data,
 is used for training an LSTM (Long Short Term Memory) neural network for
 forecasting purpose.
@@ -62,11 +74,13 @@ forecasting purpose.
 In this section, we describe the dataset used, experimental setup and details of
 models evaluated.
 
-The models involved in this work (both the component and the ensemble ones) try
-to forecast influenza in the United States represented as the /weighted
-influenza like illness/ (wili%) time-series publicly provided by the US Centers
-for Disease Control and Prevention (CDC). In the wili% time series, there are
-the following targets of interest:
+The problem we focus on is forecasting influenza in the United States
+represented as the /weighted influenza like illness/ (wili%) [fn::Percentage of
+outpatient doctor visits for influenza-like illness, weighted by state
+population. More details [[https://www.cdc.gov/flu/weekly/overview.htm][here]].]. This metric is publicly provided by the US
+Centers for Disease Control and Prevention (CDC) as a time series discretized in
+units of MMWR weeks (cite:mmwr). In this time series, there are the following
+targets of interest:
 
 1. Week ahead targets: 1, 2, 3 and 4 weeks ahead wili% values from the time of
    making the prediction.
@@ -78,20 +92,23 @@ the following targets of interest:
       with wili% equaling or exceeding the baseline.
 
 For each week in the season, a model predicts these 7 targets for each of the 10
-Health and Human Services (HHS) regions and the whole nation (making a total of
-11 regions). A season 20xx-20yy here comprises of a set of mmwr weeks
-(cite:mmwr) starting from week 30 of year 20xx and ending at week 29 of year
-20yy. The data we use for each season starts from week 40 (instead of 30) and
-covers 33 weeks (including week 40 and ending at week 19 or 20 of next year)
-since we have most of the component model predictions in this, relatively
-active, zone of the whole season.
+Health and Human Services (HHS) regions [fn::HHS regions are groups of states as
+defined [[https://www.hhs.gov/about/agencies/iea/regional-offices/index.html][here]].] and the whole nation (making a total of 11 regions). A season
+20xx-20yy here comprises of a set of MMWR weeks starting from week 30 of year
+20xx and ending at week 29 of year 20yy. The data we use for each season starts
+from week 40 (instead of 30) and covers 33 weeks (including week 40 and ending
+at week 19 or 20 of next year[fn::Depending on whether year 20xx has 53 or 52
+MMWR weeks.]) since we have most of the component model predictions in this,
+relatively active, zone of the whole season.
 
 ** Component model inputs / outputs
 
-A component model can takes input depending on the way it chooses to model
-influenza. As the output, it provides probability distributions for the 7
-targets of interest as described in previous section. From these 7 targets, 2
-are week values and 5 are wili% values.
+A component model can take any input depending on the approach it uses to model
+influenza. For example, a model might use weekly news mentions of /flu/ or related
+terms, other might use only the past /wili%/ time series etc. As the output, all
+models provide probability distributions for the 7 targets of interest as
+described in previous section. From these 7 targets, 2 are week values and 5 are
+wili% values.
 
 For week values, the output is a normalized vector of size 33, with each value
 representing the probability of a bin like $[week_{x}, week_{x+1})$. Since there
@@ -128,7 +145,7 @@ estimating a set of /weights/. Instead, we use the predictions (probability
 distributions) from the components as input to the ensemble model and predict
 directly the output for the wili% prediction problem, skipping any intermediate
 weight estimation. The ensemble models /merge/ probability distributions from
-input component models and predict probability distributions, in the same space,
+input component models and predict probability distributions in the same space
 as output. During training, the negative of log score (log of probability
 assigned to the true bin) is minimized which is equivalent to cross entropy loss
 minimization.
@@ -152,8 +169,8 @@ distributions using a gaussian and the output as a mixture of gaussians. The
 second model (convolutional neural network) works directly on the probability
 distributions (as vector of bin values) from components as input and returns a
 vector representing a probability distribution as output. Next subsection
-provides a brief introduction to general neural networks. Further sections
-explain the specific neural models used in our experiments:
+provides a general introduction to neural networks. Further subsections explain
+the specific neural models used in our experiments:
 
 *** *Neural Networks*
 
@@ -161,7 +178,7 @@ Neural Networks (or Artificial Neural Networks) are machine learning models
 based loosely on the way neurons are connected in animal brains. The high level
 aim is to learn a mapping from input to output which may be non-linear. In a
 general neural network, the /neurons/ are arranged in some number of /hidden layers/
-along with an input and an output layer see figure ref:fig:nn.
+along with an input and an output layer as shown in figure ref:fig:nn.
 
 #+CAPTION: A feed forward neural network with one hidden layer. The input to this
 #+CAPTION: network is a vector of size 3 and the output is a vector of size 2.
@@ -226,9 +243,9 @@ outputting $n$ mixtures is then given by:
 F(x) = \sum_{i = 1}^{n} w_i f(x, \mu_i, \sigma_i^2)
 \end{equation}
 
-Where $f(x, \mu_i, \sigma_i^2)$ represents a gaussian with mean $\mu_i$ and
-variance $\sigma_i^2$. Figure ref:fig:mdn shows the structure of a mixture
-density model (with weeks).
+Where $f(x, \mu_i, \sigma_i^2)$ represents a gaussian with mean $\mu_i$ and variance $\sigma_i^2$.
+Figure ref:fig:mdn shows the structure of a mixture density model we use in our
+experiments.
 
 #+CAPTION: Graph of the mixture density network model. This specific network takes
 #+CAPTION: in means and standard deviations of 21 component models (42 inputs) and 2 inputs
@@ -381,38 +398,38 @@ results in the next section.
 
 * Discussion
 
-In this work, we presented neural network based ensemble models for influenza
-prediction with the intent of automatically learning all the needed
-transformations of the components' output without learning intermediate weights.
-We also compared these models with weight based models.
+In this work, we studied neural network based ensemble models for disease
+prediction when the component outputs are probability distributions. The intent
+was to automatically learning all the needed transformations of the components'
+output without learning explicit intermediate weights.
 
-In all the experiments, simple weighing based ensembles consistently performed
-good while the neural models had mixed results. Even though one reasonable line
-of reasoning is lack of lots of training data (we have /just/ 52/53 weeks in a
-year), a more useful argument is lack of proper tuning and analysis. Neural
-networks based models are flexible enough to degenerate into simpler models like
-the weighted averaging ensembles without going very /deep/ (which might need more
-instances to fit).
+In all the experiments, simple weight based ensembles consistently performed
+good while the neural models had mixed results. One reasonable line of reasoning
+is to point out lack of training data (we have /just/ 52/53 weeks in a year). But
+since neural network models are flexible enough to degenerate into simpler
+models like the weighted averaging ensembles without going very /deep/ (which
+might need more instances to fit), a more useful argument is lack of analysis of
+limitations for weight based ensembles which would have provided /guidance/ in
+designing and tuning the networks.
 
-The original aim of exploring ensembles beyond simple weighing using neural
-models can be made less /black-boxy/ by analyzing how exactly the components are
-/lacking/ in modeling the truth. As an example consider that one of the
-component model's predictions are always correct but with low confidence, i.e.
-the peaks of its output distributions are always at the truth, but the
+To elaborate, the original aim of exploring ensembles beyond simple weighing
+using neural models can be made less /black-boxy/ by analyzing how exactly the
+components are /lacking/ in modeling the truth. As an example consider that one of
+the component model's predictions are always correct but with low confidence,
+i.e. the peaks of its output distributions are always at the truth, but the
 probability is more spread out. In this case, it makes sense to have a model
 which has transformation capabilities for changing the variance instead of
 making a general purpose network using vectors as input/output.
 
 A connected weak point of the experiments that we have presented here is that
 the models are not restricted to just learn /transformations/ of the input
-distributions and can go about learning the times series itself (which is a
-separate problem). This generality in the network design hurts their
-interpretability which, in effect, makes it harder to debug and improve them in
-a reasonable way.
+distributions and can go about learning the times series itself (which can be
+better modeled using a network with recurrency). This generality in the network
+design hurts their interpretability which, in effect, makes it harder to debug
+and improve them in a reasonable way.
 
 Going back to the original question, there are few things to do to learn more
-about the suitability of a specific ensemble model and the next steps to take
-from here:
+about the suitability of a specific ensemble model:
 
 - Analyze the main weaknesses in the weight based ensemble. For example, there
   is no way to get right predictions if all the models are disagreeing /around/
@@ -425,9 +442,5 @@ from here:
   the component weights (opposed to what we do) and peak shifts.
 - Proceed with generalizing the network design as much as possible under the
   data constraints we have.
-
-Another unexplored possibility in the network design is of using recurrent
-components/layers which are helpful for modeling time based dependencies by
-maintaining states inside the network.
 
 \printbibliography{}
