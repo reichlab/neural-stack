@@ -21,15 +21,21 @@ the ensemble is considered. We present some reasoning behind these results, and 
 to take for a better neural model.
 \end{abstract}
 
-* Introduction
+* Notes                                                            :noexport:
+The introduction needs bit of sutures between paragraphs. Feels like was written
+in different moods and days and with different aims.
 
-#+BEGIN_EXAMPLE
-Things to add/discuss:
-- Do we need to add more stuff highlighting importance of ensemble?
-- Should we add more references to earlier work in general disease forecasting?
-- Refer to ensemble works? Which ones? There is one from lab, a couple more
-  which are referenced in that paper.
-#+END_EXAMPLE
+Some points to be made strong:
+- Ensembling is nice
+- Disease prediction is right setting for an ensemble (because of the
+  diversity in modeling choices?)
+
+There is this connection with flu prediction which I have tried to keep out from
+the big picture but needs another set of eyes to confirm/fix.
+
+Discussion ends abruptly.
+
+* Introduction
 
 Ensembling a set of component models [fn::Component models are standalone models
 trying to solve the same problem, possibly with different approaches.] provides
@@ -225,6 +231,14 @@ in the techniques and tooling have made it possible to train very /deep/
 networks capable of learning highly non-linear mappings with high
 generalization. A short review of these deep learning methods is presented in
 cite:lecun2015deep.
+
+To cover good range in terms of network's capacity, the two models we choose to
+work with put different assumptions on the input and output probability
+distribution. Specifically, the mixture density network assumes the input to be
+gaussian, thus compressing a distribution to 2 numbers (mean and standard
+deviation). While the convolutional network model takes in the complete
+distribution as a vector without assuming anything. The next subsections discuss
+these two models in detail.
 
 *** *Mixture density network*
 
